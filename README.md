@@ -2,7 +2,9 @@
 
 ## A simple API to access data from gesetze-im-internet.de
 
-gesetze-im-internet.de offers an xml version of the laws for access by third parties. This package uses this feature to provide access to the individual laws, books, etc. 
+gesetze-im-internet.de offers an xml version of the laws for access by third parties. This package uses this feature to provide access to the individual laws, books, etc.
+
+https://www.gesetze-im-internet.de/gii-toc.xml
 
 ### Installation
 

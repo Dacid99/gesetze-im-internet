@@ -5,7 +5,8 @@
 - add typehints
 - small usage test
 - extend readme with basic instructions
-- purge personal data
-- setup gitlab
-- setup github mirror
-- set local email to gitlab mail
+- publish
+- exchange pypi api key with project specific key
+- improve validation
+- streaming files to get iterable instead wrapping in bytesIO
+- replace requests with stdlib urllib

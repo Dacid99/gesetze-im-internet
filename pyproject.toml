@@ -54,6 +54,7 @@ pytest = "^8.4.2"
 pytest-cov = "^7.0.0"
 pip-licenses = "^5.0.0"
 autotyping = "^24.9.0"
+pytest-html = "^4.1.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

@@ -8,20 +8,12 @@
 # You should have received a copy of the European Union Public License Version 1.1
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
-from Absatz import Absatz
-from Book import Book
-from Alternative import Alternative
-from Nummer import Nummer
-from Norm import Norm
-from Satz import Satz
-from TOC import TOC
+from .Absatz import Absatz
+from .Dokument import Dokument
+from .Alternative import Alternative
+from .Nummer import Nummer
+from .Norm import Norm
+from .Satz import Satz
+from .TOC import TOC
 
-__all__ = [
-    "Absatz",
-    "Alternative",
-    "Book",
-    "Norm",
-    "Nummer",
-    "Satz",
-    "TOC"
-]
+__all__ = ["Absatz", "Alternative", "Dokument", "Norm", "Nummer", "Satz", "TOC"]

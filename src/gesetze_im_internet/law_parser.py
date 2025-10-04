@@ -31,9 +31,9 @@ def parse_book(book_data):
 
 
 def parse_norm(norm_node: etree.ElementBase):
-    builddate = norm_node.attrib["builddate"]
+    builddate = norm_node.attrib.get("builddate")
     builddatetime = datetime(year=builddate[0:2], month=builddate[2:4], day=builddate[4:6], hour=builddate[6:8], minute=builddate[8:10], second=builddate[10:12])
-    doknr = norm_node.attrib["doknr"]
+    doknr = norm_node.attrib.get("doknr")
     parse_norm_metadata(norm_node.find("metadaten"))
     parse_norm_textdata(norm_node.find("textdaten"))
 
@@ -45,7 +45,7 @@ def parse_norm_metadata(metadata_node):
 
 def parse_norm_textdata(textdata_node):
     text = textdata_node.find("text")
-    if text.attrib["format"] == "XML":
+    if text.attrib.get("format") == "XML":
         content = text.find("content")
 
 
