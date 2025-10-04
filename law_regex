@@ -6,9 +6,9 @@
         <enbez>
             [^<]*?
         <\/enbez>\s*
-        <titel.*?>
+        (?:<titel.*?>
             [^<]*?
-        <\/titel>\s*
+        <\/titel>\s*)?
     <\/metadaten>\s*
     <textdaten>\s*
         <text.*?>\s*
@@ -22,15 +22,15 @@
                     <\/B>\s*
                     <BR\/>
                     [^<]*?
-                <\/Footnote>\s*)+
+                <\/Footnote>\s*)*
             <\/Footnotes>\s*)?
         <\/text>\s*
        (?:<fussnoten\/>
         |<fussnoten>\s*
             <Content>\s*
-                <P>
+                (<P>
                     [^<]*?
-                <\/P>\s*
+                <\/P>\s*)*
             <\/Content>\s*
          <\/fussnoten>\s*)
     <\/textdaten>\s*
