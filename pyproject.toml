@@ -46,7 +46,14 @@ Repository = "https://gitlab.com/Dacid99/gesetze-im-internet.git"
 Changelog = "https://gitlab.com/Dacid99/gesetze-im-internet/-/blob/master/CHANGELOG.md"
 
 [tool.poetry]
-package-mode = false
+package-mode = true
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.13.3"
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pip-licenses = "^5.0.0"
+autotyping = "^24.9.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

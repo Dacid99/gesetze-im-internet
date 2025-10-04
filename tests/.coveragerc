@@ -1,0 +1,18 @@
+[run]
+omit =
+    */tests/*
+    */tools/*
+    */.venv/*
+    */venv/*
+    */test.py
+branch=True
+[report]
+format=total
+include_namespace_packages=True
+precision=2
+show_missing=True
+sort=Cover
+[html]
+directory = tests/reports/cov
+show_contexts=True
+skip_empty=True

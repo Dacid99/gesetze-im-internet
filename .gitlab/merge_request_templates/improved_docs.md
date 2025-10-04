@@ -4,11 +4,11 @@
 
 To make sure that the projects code remains in a good and maintainable state, please check that your pull request complies with the CONTRIBUTING guidelines.
 
-Please go through the following checklist to give us a quickstart when checking your pull request.
+Please go through the following checklist to give me a quickstart when checking your pull request.
 
 For a documentation upgrade this should be very straightforward.
 
-If you need help to get to your code to check all boxes, please submit the pull request in the best state you can reach yourself and we will help you to get it completed.
+If you need help to get to your code to check all boxes, please submit the pull request in the best state you can reach yourself and I will help you to get it completed.
 
 ### Consistency
 

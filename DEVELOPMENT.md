@@ -25,7 +25,7 @@ poetry completions bash >> ~/.bash_completion
 Then install all the dependencies to a virtual environment:
 
 ```bash
-poetry install --with dev,docs
+poetry install --with dev,docs --no-root
 ```
 
 Finally you can activate the venv with
@@ -39,7 +39,7 @@ eval $(poetry env activate)
 The projects tests are in the test/ directory. You can run them from the project root with
 
 ```bash
-pytest test
+pytest tests
 ```
 
 ## Validation and Linting

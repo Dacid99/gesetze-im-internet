@@ -6,7 +6,7 @@ To make sure that the projects code remains in a good and maintainable state, pl
 
 Please go through the following checklist to give me a quickstart when checking your pull request.
 
-If you need help to get to your code to check all boxes, please submit the pull request in the best state you can reach yourself and we will help you to get it completed.
+If you need help to get to your code to check all boxes, please submit the pull request in the best state you can reach yourself and I will help you to get it completed.
 
 ### Code style
 
@@ -57,7 +57,7 @@ If you need help to get to your code to check all boxes, please submit the pull 
 [] I have fixed the following bug:
 
 
-[] I have tested the fix on a running modified instance and the bug did consistently not occur.
+[] I have tested the fix with a debug build package and the bug did not occur.
 
 I have added the following requirements to the project:
 

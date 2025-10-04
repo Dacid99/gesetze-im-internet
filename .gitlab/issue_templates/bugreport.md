@@ -1,6 +1,6 @@
 **Thank you for your effort to report a bug in the gesetze-im-internet package!**
 
-The time to maintain and advance this project is precious, so we need to focus and filter what time is spent on.
+The time to maintain and advance this project is precious, so I need to focus and filter what time is spent on.
 
 - If your issue is a how-to question, please try to get an answer elsewhere, e.g. stackoverflow, reddit or the documentation.
 
@@ -8,13 +8,13 @@ The time to maintain and advance this project is precious, so we need to focus a
 
 - If the bug is security related, please do not file a public issue but contact one of the maintainers privately!
 
-If your problem doesn't fall in one of these categories, please go ahead and fill out the report. The more information you provide the more material we can work with in order to reach a quick and complete fix.
+If your problem doesn't fall in one of these categories, please go ahead and fill out the report. The more information you provide the more material I can work with in order to reach a quick and complete fix.
 
 - [ ] I have checked that there is no existing issue dealing with this problem.
 
 ## Summary
 
-*Summarize the bug and how you discovered it. This gives us a first idea of what may be going on.*
+*Summarize the bug and how you discovered it. This gives me a first idea of what may be going on.*
 
 
 ## gesetze-im-internet version
