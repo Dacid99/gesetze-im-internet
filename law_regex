@@ -1,0 +1,37 @@
+<norm.*?>\s*
+    <metadaten>\s*
+        <jurabk>
+            [^<]*?
+        <\/jurabk>\s*
+        <enbez>
+            [^<]*?
+        <\/enbez>\s*
+        <titel.*?>
+            [^<]*?
+        <\/titel>\s*
+    <\/metadaten>\s*
+    <textdaten>\s*
+        <text.*?>\s*
+            <Content>\s*
+               (.*?)
+            <\/Content>\s*
+            (?:<Footnotes>\s*
+                (?:<Footnote.*?>\s*
+                    <B>
+                        [^<]*?
+                    <\/B>\s*
+                    <BR\/>
+                    [^<]*?
+                <\/Footnote>\s*)+
+            <\/Footnotes>\s*)?
+        <\/text>\s*
+       (?:<fussnoten\/>
+        |<fussnoten>\s*
+            <Content>\s*
+                <P>
+                    [^<]*?
+                <\/P>\s*
+            <\/Content>\s*
+         <\/fussnoten>\s*)
+    <\/textdaten>\s*
+<\/norm>
