@@ -2,16 +2,48 @@
 name = "gesetze-im-internet"
 version = "0.0.1"
 description = "Simple API for gesetze-im-internet.de's xml readout"
-authors = [
-    {name = "david",email = "no@email.org"}
+keywords = [
+    "gesetze",
+    "law",
+    "german",
+    "deutsch",
+    "germany",
+    "deutschland",
+    "jura",
+    "recht",
 ]
-license = {text = "EUPL-1.1"}
+authors = [{ name = "david", email = "no@email.org" }]
+license = "EUPL-1.1"
+license-files = ["LICEN[CS]E*"]
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "requests (>=2.32.5,<3.0.0)",
-    "lxml (>=6.0.2,<7.0.0)"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: European Union Public Licence 1.1 (EUPL 1.1)",
+    "Natural Language :: German",
+    "Natural Language :: English",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Typing :: Typed",
 ]
+dependencies = ["requests (>=2.32.5,<3.0.0)", "lxml (>=6.0.2,<7.0.0)"]
+
+[project.urls]
+Homepage = "https://pypi.org/project/gesetze-im-internet/"
+Issues = "https://gitlab.com/Dacid99/gesetze-im-internet/-/issues"
+Documentation = "https://gitlab.com/Dacid99/gesetze-im-internet/-/blob/master/README.md"
+Repository = "https://gitlab.com/Dacid99/gesetze-im-internet.git"
+Changelog = "https://gitlab.com/Dacid99/gesetze-im-internet/-/blob/master/CHANGELOG.md"
 
 [tool.poetry]
 package-mode = false

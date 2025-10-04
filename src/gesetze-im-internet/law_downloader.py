@@ -1,3 +1,13 @@
+# SPDX-License-Identifier: EUPL-1.1
+# Copyright (C) 2025 David Aderbauer
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the European Union Public License Version 1.1 as
+# published by the European Union.
+#
+# You should have received a copy of the European Union Public License Version 1.1
+# along with this program. If not, see <https://spdx.org/licenses/>.
+
 from requests import get
 from constants import TOC_URL
 from zipfile import ZipFile
@@ -19,7 +29,7 @@ def get_norm_dtd(dtd_url):
 
 
 def get_book(book_url):
-    response = get(book_url) 
+    response = get(book_url)
     with ZipFile(BytesIO(response.content)) as zipdata:
         if len(zipdata.namelist()) == 1:
             with zipdata.open(zipdata.namelist()[0]) as book_file:

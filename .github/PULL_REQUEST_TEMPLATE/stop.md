@@ -1,0 +1,1 @@
+../../.gitea/PULL_REQUEST_TEMPLATE/stop.md

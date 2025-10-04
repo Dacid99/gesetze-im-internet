@@ -1,3 +1,13 @@
+# SPDX-License-Identifier: EUPL-1.1
+# Copyright (C) 2025 David Aderbauer
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the European Union Public License Version 1.1 as
+# published by the European Union.
+#
+# You should have received a copy of the European Union Public License Version 1.1
+# along with this program. If not, see <https://spdx.org/licenses/>.
+
 from lxml import etree
 from datetime import datetime
 
@@ -37,7 +47,7 @@ def parse_norm_textdata(textdata_node):
     text = textdata_node.find("text")
     if text.attrib["format"] == "XML":
         content = text.find("content")
-        
+
 
 def parse_norm_content(node_content):
     for child in node_content:
