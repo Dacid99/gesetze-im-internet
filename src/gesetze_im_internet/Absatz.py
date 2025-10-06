@@ -48,6 +48,9 @@ class Absatz:
             "nr": (int2roman(self.nr) if self.nr else "I"),
         }
 
+    def __len__(self) -> int:
+        return len(self._absatz_node.text.split(". "))
+
     def __iter__(self) -> Iterable[str]:
         for sentence in self._absatz_node.text.split(". "):
             yield sentence.strip()

@@ -20,7 +20,7 @@ from lxml import etree
 from requests import get
 
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
-from gesetze_im_internet.exceptions import ValidationError
+from gesetze_im_internet.exceptions import BadDataError, ValidationError
 from gesetze_im_internet.utils import register, replace_umlauts, wrap_node
 
 
@@ -37,7 +37,7 @@ class Dokument:
 
     def __init__(self, book_url: str | None = None, validate: bool = False) -> None:
         if book_url:
-            self.parse(self.get(book_url), validate=True)
+            self.parse(self.get(book_url), validate=validate)
 
     def __iter__(self) -> Iterable[Norm]:
         iterator = self._dokumente.iter("norm")
@@ -70,13 +70,14 @@ class Dokument:
                 if zipped_file.endswith("xml"):
                     with zipdata.open(zipped_file) as book_file:
                         return book_file.read()
+            raise BadDataError("zip file did not include a xml file")
 
     def parse(self, book_data: bytes, validate: bool = False) -> None:
         self._tree = etree.parse(BytesIO(book_data))
         if validate:
-            self._validate(self._tree)
+            self.validate()
 
-    def _validate(self, tree: etree._ElementTree) -> None:
+    def validate(self) -> None:
         dtd_data = self._get_dtd(self._tree.docinfo.system_url)
         dtd = etree.DTD(BytesIO(dtd_data))
         if not dtd.validate(self._tree):

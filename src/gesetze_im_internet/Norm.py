@@ -58,7 +58,7 @@ class Norm:
         return wrap_node(self._norm_node.findall(".//P")[absatz_nr])
 
     def __str__(self) -> str:
-        return "\n".join([f"({int(absatz)}) {str(absatz)}" for absatz in self ])
+        return "\n".join([f"({int(absatz)}) {absatz}" for absatz in self])
 
     def __repr__(self) -> str:
         return (

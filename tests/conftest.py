@@ -33,8 +33,18 @@ def test_(Classname_methodname)|(functionname)_case(args in order from furthest 
 
 import os
 
+import pytest
+
 
 def pytest_configure(config):
     """Configures the path for pytest to be the directory of this file for consistent relative paths."""
     pytest_ini_dir = os.path.dirname(os.path.abspath(config.inifile))
     os.chdir(pytest_ini_dir)
+
+
+@pytest.fixture(scope="session")
+def toc():
+    """Initializing toc in session scope fixture to avoid load on gesetze-im-internet servers."""
+    from gesetze_im_internet import toc
+
+    return toc

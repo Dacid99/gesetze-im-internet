@@ -9,8 +9,12 @@
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
 
-def test_TOC(toc):
-    assert "Bürgerliches Gesetzbuch" in list(toc)
-    assert len(toc)
-    assert str(toc)
-    assert repr(toc)
+def test_Absatz(toc):
+    absatz = toc["Strafgesetzbuch"][11][0]
+
+    assert str(absatz)
+    assert len(absatz)
+    assert list(absatz)
+    assert int(absatz)
+    assert repr(absatz)
+    assert absatz.norm
