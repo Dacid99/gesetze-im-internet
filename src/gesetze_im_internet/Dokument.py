@@ -32,7 +32,9 @@ if TYPE_CHECKING:
 
 @register
 class Dokument:
-    TAG = "dokumente"
+    """A wrapper for a dokumente xml element."""
+
+    _TAG = "dokumente"
     URL_TEMPLATE = WEB_PROTOCOL + "www.gesetze-im-internet.de/%(jurabk)s/index.html"
 
     def __init__(self, book_url: str | None = None, validate: bool = False) -> None:
@@ -40,6 +42,7 @@ class Dokument:
             self.parse(self.get(book_url), validate=validate)
 
     def __iter__(self) -> Iterable[Norm]:
+        """Iterator over all norms in the document."""
         iterator = self._dokumente.iter("norm")
         next(
             iterator
@@ -48,23 +51,29 @@ class Dokument:
             yield wrap_node(norm)
 
     def __call__(self, index: int) -> Norm:
+        """Get a norm by index."""
         return self[index]
 
     def __getitem__(self, index: int) -> Norm:
+        """Get a norm by index."""
         return wrap_node(self._tree.findall("norm")[index])
 
     def __str__(self) -> str:
+        """The text content of the document."""
         return "\n".join([repr(norm) + "\n" + str(norm) for norm in self])
 
     def __repr__(self) -> str:
+        """The full reference to the document."""
         return self.langue or self.kurzue or self.amtabk or self.jurabk
 
     def __len__(self) -> int:
+        """The number of norms in the document."""
         return len(self._dokumente.findall("norm"))
 
-    def get(self, book_url: str) -> bytes:
-        self._url = book_url
-        response = get(book_url)
+    def get(self, dokument_url: str) -> bytes:
+        """Get a dokuments data from the web."""
+        self._url = dokument_url
+        response = get(dokument_url)
         with ZipFile(BytesIO(response.content)) as zipdata:
             for zipped_file in zipdata.namelist():
                 if zipped_file.endswith("xml"):
@@ -73,11 +82,13 @@ class Dokument:
             raise BadDataError("zip file did not include a xml file")
 
     def parse(self, book_data: bytes, validate: bool = False) -> None:
+        """Parse dokument data into this instance and validate if needed."""
         self._tree = etree.parse(BytesIO(book_data))
         if validate:
             self.validate()
 
     def validate(self) -> None:
+        """Validate this documents xml data."""
         dtd_data = self._get_dtd(self._tree.docinfo.system_url)
         dtd = etree.DTD(BytesIO(dtd_data))
         if not dtd.validate(self._tree):
@@ -89,6 +100,7 @@ class Dokument:
 
     @property
     def href(self) -> str:
+        """The url under which the html version of this document can be found."""
         return self.URL_TEMPLATE % {"jurabk": replace_umlauts(self.jurabk.lower())}
 
     @cached_property
@@ -105,6 +117,7 @@ class Dokument:
 
     @property
     def builddate(self) -> datetime | None:
+        """The datetime the underlying xml was built."""
         builddate = self._dokumente.attrib.get("builddate")
         return (
             datetime.strptime(builddate, BUILDDATE_FORMAT).astimezone(TIMEZONE)
@@ -114,26 +127,32 @@ class Dokument:
 
     @property
     def doknr(self) -> str | None:
+        """The document number of the underlying xml file."""
         return self._dokumente.attrib.get("doknr")
 
     @property
     def jurabk(self) -> str | None:
+        """The common abbreviation of the document name ('Juristische Abkürzung')."""
         return self._metadaten.findtext("jurabk")
 
     @property
     def amtabk(self) -> str | None:
+        """The official abbreviation of the document name ('Amtliche Abkürzung')."""
         return self._metadaten.findtext("amtabk")
 
     @property
     def kurzue(self) -> str | None:
+        """The shortform of the full document name."""
         return self._metadaten.findtext("kurzue")
 
     @property
     def langue(self) -> str | None:
+        """The long form of the full document name."""
         return self._metadaten.findtext("langue")
 
     @property
     def ausfertigung_datum(self) -> datetime | None:
+        """The date this law was signed into effect."""
         ausfertigung_datum = self._metadaten.findtext("ausfertigung-datum")
         return (
             datetime.strptime(ausfertigung_datum, "%Y-%m-%d").astimezone(TIMEZONE)
@@ -143,6 +162,7 @@ class Dokument:
 
     @property
     def ausfertigung_manuell(self) -> bool | None:
+        """Whether this law was signed manually."""
         ausfertigung_datum = self._metadaten.find("ausfertigung-datum")
         return (
             ausfertigung_datum.attrib.get("manuell").lower() == "ja"

@@ -27,36 +27,44 @@ if TYPE_CHECKING:
 
 @register
 class Absatz:
-    TAG = "P"
+    """A wrapper for a P xml element."""
+
+    _TAG = "P"
     NR_REGEX = r"^\s*\(\s*(\d+)\s*\)"
     STR_TEMPLATE = "%(norm)s %(nr)s"
 
     def __init__(self, absatz_node: etree.Element) -> None:
-        if absatz_node.tag != self.TAG:
+        if absatz_node.tag != self._TAG:
             raise ImproperTagError()
         self._absatz_node = absatz_node
 
     def __int__(self) -> int:
+        """The ordering number for this absatz. 1 if no number is given in the text."""
         return self.nr or 1
 
     def __str__(self) -> str:
+        """The text for this absatz."""
         return self._absatz_node.text or ""
 
     def __repr__(self) -> str:
+        """The complete reference to this absatz."""
         return self.STR_TEMPLATE % {
             "norm": repr(self.norm),
             "nr": (int2roman(self.nr) if self.nr else "I"),
         }
 
     def __len__(self) -> int:
-        return len(self._absatz_node.text.split(". "))
+        """The number of sentences in this absatz."""
+        return len(str(self).split(". "))
 
     def __iter__(self) -> Iterable[str]:
+        """Iterator over all sentences in the absatz."""
         for sentence in self._absatz_node.text.split(". "):
             yield sentence.strip()
 
     @property
     def nr(self) -> int | None:
+        """The ordering number for this absatz. None if no number is given in the text."""
         text = self._absatz_node.text
         if text:
             nr_match = re.search(self.NR_REGEX, text)
@@ -66,6 +74,7 @@ class Absatz:
 
     @property
     def norm(self) -> Norm:
+        """The norm that this absatz is a part of."""
         norm_candidate = self._absatz_node.getparent()
         while norm_candidate.tag != "norm":
             norm_candidate = norm_candidate.getparent()

@@ -14,3 +14,4 @@
 - text for absatz is incomplete
 - choice for notation
 - fussnoten
+- consistently omit 0-element from document norms

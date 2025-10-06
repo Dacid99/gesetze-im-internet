@@ -31,7 +31,9 @@ if TYPE_CHECKING:
 
 @register
 class Norm:
-    TAG = "norm"
+    """A wrapper for a norm xml element."""
+
+    _TAG = "norm"
     STR_NORM_TEMPLATE = "%(jurabk)s %(enbez)s %(titel)s"
     STR_GLIEDERUNG_TEMPLATE = "%(jurabk)s %(gliederungsbez)s %(gliederungstitel)s"
     URL_NORM_TEMPLATE = (
@@ -43,24 +45,29 @@ class Norm:
     )
 
     def __init__(self, norm_node: etree.Element) -> None:
-        if norm_node.tag != self.TAG:
+        if norm_node.tag != self._TAG:
             raise ImproperTagError()
         self._norm_node = norm_node
 
     def __iter__(self) -> Iterable[Absatz]:
+        """Iterator over the absätze in the norm."""
         for absatz_node in self._norm_node.iterfind(".//P"):
             yield wrap_node(absatz_node)
 
     def __call__(self, absatz_nr: int) -> Absatz:
+        """Gets an absatz by index."""
         return self[absatz_nr]
 
     def __getitem__(self, absatz_nr: int) -> Absatz:
+        """Gets an absatz by index."""
         return wrap_node(self._norm_node.findall(".//P")[absatz_nr])
 
     def __str__(self) -> str:
+        """The text content of this norm."""
         return "\n".join([f"({int(absatz)}) {absatz}" for absatz in self])
 
     def __repr__(self) -> str:
+        """The full reference to this norm."""
         return (
             self.STR_GLIEDERUNG_TEMPLATE
             % {
@@ -74,19 +81,23 @@ class Norm:
         )
 
     def __int__(self) -> int:
+        """The number (paragraph or gliederung) of this norm."""
         return (
             int(self.gliederungskennzahl or 0) if self.is_gliederung else (self.nr or 0)
         )
 
     def __len__(self) -> int:
+        """The number of absätze in this norm."""
         return len(self._norm_node.findall(".//P"))
 
     @property
     def is_gliederung(self) -> bool:
+        """Whether this norm is a law or structuring element."""
         return self._gliederungseinheit is not None
 
     @property
     def href(self) -> str:
+        """The url under which the html version of this law can be found."""
         return (
             self.URL_GLIEDERUNG_TEMPLATE
             % {
@@ -109,6 +120,7 @@ class Norm:
 
     @property
     def builddate(self) -> datetime | None:
+        """The datetime the underlying xml was built."""
         builddate = self._norm_node.attrib.get("builddate")
         return (
             datetime.strptime(builddate, BUILDDATE_FORMAT).astimezone(TIMEZONE)
@@ -118,30 +130,37 @@ class Norm:
 
     @property
     def doknr(self) -> str | None:
+        """The document number of the underlying xml file."""
         return self._norm_node.attrib.get("doknr")
 
     @property
     def jurabk(self) -> str | None:
+        """The common abbreviation of the document name ('Juristische Abkürzung')."""
         return self._metadaten.findtext("jurabk")
 
     @property
     def amtabk(self) -> str | None:
+        """The official abbreviation of the document name ('Amtliche Abkürzung')."""
         return self._metadaten.findtext("amtabk")
 
     @property
     def enbez(self) -> str | None:
+        """The short reference for this law (paragraph notation)."""
         return self._metadaten.findtext("enbez")
 
     @property
     def titel(self) -> str | None:
+        """The title of this law."""
         return self._metadaten.findtext("titel")
 
     @property
     def titel_format(self) -> str | None:
+        """The format of this laws title."""
         return self._metadaten.find("titel").attrib.get("format")
 
     @property
     def nr(self) -> int | None:
+        """The paragraph number of this law."""
         if self.enbez:
             nr_match = re.search(r"(\d+)", self.enbez)
             if nr_match:

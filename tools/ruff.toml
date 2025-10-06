@@ -62,6 +62,7 @@ ignore = [
   "ARG001", # allow unaccessed args
   "ARG002", # allow unaccessed args
   "D100",   # no module docstrings needed
+  "D104",   # no module docstrings needed
   "COM812", # trailing comma, redundant with `black`
   "D202",   # allow blank line after function docstring
   "D203",   # no blank line before class docstring
@@ -112,6 +113,7 @@ parametrize-values-type = "list"
 [lint.extend-per-file-ignores]
 "/**/tests/**/test_**.py" = [ # extend ignores for test_* files, so excluding conftests
   "S101", # asserts
+  "D"   , # test documentation isnt needed
   "F401", # unused import
   "F811", # redefinition of unused
 ]
