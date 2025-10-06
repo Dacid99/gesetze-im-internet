@@ -99,7 +99,7 @@ parametrize-values-row-type = "tuple"
 parametrize-values-type = "list"
 
 [lint.per-file-ignores]
-"/**/test/**" = [ # ignores for all test files
+"/**/tests/**" = [ # ignores for all test files
   "SLF001",  # private accessed
   "PLR2004", # magic numbers
   "ANN",     # no type annotations in tests needed
@@ -109,7 +109,7 @@ parametrize-values-type = "list"
 ]
 
 [lint.extend-per-file-ignores]
-"/**/test/**/test_**.py" = [ # extend ignores for test_* files, so excluding conftests
+"/**/tests/**/test_**.py" = [ # extend ignores for test_* files, so excluding conftests
   "S101", # asserts
   "F401", # unused import
   "F811", # redefinition of unused

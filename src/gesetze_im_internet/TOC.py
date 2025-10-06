@@ -8,10 +8,12 @@
 # You should have received a copy of the European Union Public License Version 1.1
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
-from requests import get
 from lxml import etree
-from .Dokument import Dokument
+from requests import get
+
 from gesetze_im_internet.exceptions import DownloadError
+
+from .Dokument import Dokument
 
 
 class TOC:
@@ -37,8 +39,7 @@ class TOC:
         response = get(toc_url)
         if response.status_code == 200:
             return response.content
-        else:
-            raise DownloadError("Request for TOC did not return the expected data.")
+        raise DownloadError("Request for TOC did not return the expected data.")
 
     def parse(self, toc_data):
         items = etree.fromstring(toc_data)

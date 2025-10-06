@@ -12,3 +12,5 @@
 WEB_PROTOCOL = "https://"
 
 TOC_URL = WEB_PROTOCOL + "www.gesetze-im-internet.de/gii-toc.xml"
+
+BUILDDATE_FORMAT = "%Y%m%d%H%M%S"

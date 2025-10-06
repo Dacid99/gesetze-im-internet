@@ -12,3 +12,7 @@ class DownloadError(GesetzeImInternetError):
 
 class BadDataError(GesetzeImInternetError):
     pass
+
+
+class ImproperTag(GesetzeImInternetError):
+    pass
