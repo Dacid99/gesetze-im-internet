@@ -8,40 +8,49 @@
 # You should have received a copy of the European Union Public License Version 1.1
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
+from __future__ import annotations
 
-from collections.abc import Iterable
 from datetime import datetime
 from functools import cached_property
 from io import BytesIO
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from lxml import etree
 from requests import get
 
-from gesetze_im_internet.constants import BUILDDATE_FORMAT
+from gesetze_im_internet.utils import register, wrap_node
+from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE
 from gesetze_im_internet.exceptions import ValidationError
 
-from .Norm import Norm
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from .Norm import Norm
 
 
+@register
 class Dokument:
+    TAG = "dokumente"
+
     def __init__(self, book_url: str | None = None, validate=False) -> None:
         if book_url:
             self.parse(self.get(book_url), validate=True)
 
     def __iter__(self) -> Iterable[str]:
         for norm in self._dokumente.iter("norm"):
-            yield str(Norm(norm))
+            yield str(wrap_node(norm))
 
     def __call__(
         self,
     ) -> Norm:
-        return Norm()
+        return wrap_node()
 
     def __str__(self) -> str:
         return self.langue or self.kurzue or self.amtabk or self.jurabk
 
-    def get(self, book_url: str):
+    def get(self, book_url: str) -> bytes:
         self._url = book_url
         response = get(book_url)
         with ZipFile(BytesIO(response.content)) as zipdata:
@@ -54,7 +63,7 @@ class Dokument:
         if validate:
             self._validate(self._tree)
 
-    def _validate(self, tree: etree._ElementTree):
+    def _validate(self, tree: etree._ElementTree) -> None:
         dtd_data = self._get_dtd(self._tree.docinfo.system_url)
         dtd = etree.DTD(BytesIO(dtd_data))
         if not dtd.validate(self._tree):
@@ -85,7 +94,11 @@ class Dokument:
     @property
     def builddate(self) -> datetime | None:
         builddate = self._dokumente.attrib.get("builddate")
-        return datetime.strptime(builddate, BUILDDATE_FORMAT) if builddate else None
+        return (
+            datetime.strptime(builddate, BUILDDATE_FORMAT).astimezone(TIMEZONE)
+            if builddate
+            else None
+        )
 
     @property
     def doknr(self) -> str | None:
@@ -108,16 +121,16 @@ class Dokument:
         return self._metadaten.findtext("langue")
 
     @property
-    def ausfertigung_datum(self):
+    def ausfertigung_datum(self) -> datetime | None:
         ausfertigung_datum = self._metadaten.findtext("ausfertigung-datum")
         return (
-            datetime.strptime(ausfertigung_datum, "%Y-%m-%d")
+            datetime.strptime(ausfertigung_datum, "%Y-%m-%d").astimezone(TIMEZONE)
             if ausfertigung_datum
             else None
         )
 
     @property
-    def ausfertigung_manuell(self):
+    def ausfertigung_manuell(self) -> bool | None:
         ausfertigung_datum = self._metadaten.find("ausfertigung-datum")
         return (
             ausfertigung_datum.attrib.get("manuell").lower() == "ja"
@@ -126,16 +139,16 @@ class Dokument:
         )
 
     @property
-    def fundstelle_typ(self):
+    def fundstelle_typ(self) -> str | None:
         fundstelle = self._metadaten.find("fundstelle")
         return fundstelle.attrib.get("typ") if fundstelle is not None else None
 
     @property
-    def fundstelle_periodikum(self):
+    def fundstelle_periodikum(self) -> str | None:
         fundstelle = self._metadaten.find("fundstelle")
-        return fundstelle.attrib.get("periodikum") if fundstelle is not None else None
+        return fundstelle.findtext("periodikum") if fundstelle is not None else None
 
     @property
-    def fundstelle_zitstelle(self):
+    def fundstelle_zitstelle(self) -> str | None:
         fundstelle = self._metadaten.find("fundstelle")
-        return fundstelle.attrib.get("zitstelle") if fundstelle is not None else None
+        return fundstelle.findtext("zitstelle") if fundstelle is not None else None

@@ -8,21 +8,13 @@
 # You should have received a copy of the European Union Public License Version 1.1
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
-class GesetzeImInternetError(Exception):
-    pass
+NODE_WRAPPER_CLASSES = {}
 
 
-class ValidationError(GesetzeImInternetError):
-    pass
+def register(cls):
+    NODE_WRAPPER_CLASSES[cls.TAG] = cls
+    return cls
 
 
-class DownloadError(GesetzeImInternetError):
-    pass
-
-
-class BadDataError(GesetzeImInternetError):
-    pass
-
-
-class ImproperTagError(GesetzeImInternetError):
-    pass
+def wrap_node(node):
+    return NODE_WRAPPER_CLASSES[node.tag](node)

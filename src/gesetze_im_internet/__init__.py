@@ -17,4 +17,5 @@ from .TOC import TOC
 
 __all__ = ["TOC", "Absatz", "Alternative", "Dokument", "Norm", "Nummer", "Satz"]
 
+
 toc = TOC()

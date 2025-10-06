@@ -8,19 +8,27 @@
 # You should have received a copy of the European Union Public License Version 1.1
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
-from gesetze_im_internet.exceptions import ImproperTag
+from gesetze_im_internet.utils import register, wrap_node
+from gesetze_im_internet.exceptions import ImproperTagError
 
-from .Norm import Norm
+
+if TYPE_CHECKING:
+    from .Norm import Norm
 
 
+@register
 class Absatz:
+    TAG = "P"
     NR_REGEX = r"^\s*\(\s*(\d+)\s*\)"
 
     def __init__(self, absatz_node) -> None:
         if absatz_node.tag != "P":
-            raise ImproperTag()
+            raise ImproperTagError()
         self._absatz_node = absatz_node
 
     def __int__(self) -> int:
@@ -47,4 +55,4 @@ class Absatz:
         norm_candidate = self._absatz_node.getparent()
         while norm_candidate.tag != "norm":
             norm_candidate = self.absatz_node.getparent()
-        return Norm(norm_candidate)
+        return wrap_node(norm_candidate)

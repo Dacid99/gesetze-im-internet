@@ -7,22 +7,3 @@
 #
 # You should have received a copy of the European Union Public License Version 1.1
 # along with this program. If not, see <https://spdx.org/licenses/>.
-
-class GesetzeImInternetError(Exception):
-    pass
-
-
-class ValidationError(GesetzeImInternetError):
-    pass
-
-
-class DownloadError(GesetzeImInternetError):
-    pass
-
-
-class BadDataError(GesetzeImInternetError):
-    pass
-
-
-class ImproperTagError(GesetzeImInternetError):
-    pass
