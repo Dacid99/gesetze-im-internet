@@ -19,9 +19,9 @@ from zipfile import ZipFile
 from lxml import etree
 from requests import get
 
-from gesetze_im_internet.utils import register, wrap_node
-from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE
+from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
 from gesetze_im_internet.exceptions import ValidationError
+from gesetze_im_internet.utils import register, replace_umlauts, wrap_node
 
 
 if TYPE_CHECKING:
@@ -33,30 +33,43 @@ if TYPE_CHECKING:
 @register
 class Dokument:
     TAG = "dokumente"
+    URL_TEMPLATE = WEB_PROTOCOL + "www.gesetze-im-internet.de/%(jurabk)s/index.html"
 
-    def __init__(self, book_url: str | None = None, validate=False) -> None:
+    def __init__(self, book_url: str | None = None, validate: bool = False) -> None:
         if book_url:
             self.parse(self.get(book_url), validate=True)
 
-    def __iter__(self) -> Iterable[str]:
-        for norm in self._dokumente.iter("norm"):
-            yield str(wrap_node(norm))
+    def __iter__(self) -> Iterable[Norm]:
+        iterator = self._dokumente.iter("norm")
+        next(
+            iterator
+        )  # needed to skip the first norm, which is purely metadata for the dokument
+        for norm in iterator:
+            yield wrap_node(norm)
 
-    def __call__(
-        self,
-    ) -> Norm:
-        return wrap_node()
+    def __call__(self, index: int) -> Norm:
+        return self[index]
+
+    def __getitem__(self, index: int) -> Norm:
+        return wrap_node(self._tree.findall("norm")[index])
 
     def __str__(self) -> str:
+        return "\n".join([repr(norm) + "\n" + str(norm) for norm in self])
+
+    def __repr__(self) -> str:
         return self.langue or self.kurzue or self.amtabk or self.jurabk
+
+    def __len__(self) -> int:
+        return len(self._dokumente.findall("norm"))
 
     def get(self, book_url: str) -> bytes:
         self._url = book_url
         response = get(book_url)
         with ZipFile(BytesIO(response.content)) as zipdata:
-            if len(zipdata.namelist()) == 1:
-                with zipdata.open(zipdata.namelist()[0]) as book_file:
-                    return book_file.read()
+            for zipped_file in zipdata.namelist():
+                if zipped_file.endswith("xml"):
+                    with zipdata.open(zipped_file) as book_file:
+                        return book_file.read()
 
     def parse(self, book_data: bytes, validate: bool = False) -> None:
         self._tree = etree.parse(BytesIO(book_data))
@@ -75,9 +88,7 @@ class Dokument:
 
     @property
     def href(self) -> str:
-        if hasattr(self, "_url"):
-            return self._url.rsplit("/", maxsplit=1)[0] + "/index.html"
-        raise ValueError("This Dokument has not read any online source yet.")
+        return self.URL_TEMPLATE % {"jurabk": replace_umlauts(self.jurabk.lower())}
 
     @cached_property
     def _dokumente(self):
@@ -152,3 +163,24 @@ class Dokument:
     def fundstelle_zitstelle(self) -> str | None:
         fundstelle = self._metadaten.find("fundstelle")
         return fundstelle.findtext("zitstelle") if fundstelle is not None else None
+
+    @property
+    def standangabe_typ(self) -> str | None:
+        standangabe = self._metadaten.find("standangabe")
+        return standangabe.findtext("standtyp") if standangabe is not None else None
+
+    @property
+    def standangabe_checked(self) -> str | None:
+        standangabe = self._metadaten.find("standangabe")
+        return (
+            standangabe.attrib.get("checked").lower() == "ja"
+            if standangabe is not None
+            else None
+        )
+
+    @property
+    def standangabe_kommentar(self) -> str | None:
+        standangabe = self._metadaten.find("standangabe")
+        return (
+            standangabe.findtext("standkommentar") if standangabe is not None else None
+        )

@@ -15,7 +15,7 @@ from .Norm import Norm
 from .TOC import TOC
 
 
-__all__ = ["TOC", "Absatz", "Alternative", "Dokument", "Norm", "Nummer", "Satz"]
+__all__ = ["TOC", "Absatz", "Dokument", "Norm"]
 
 
 toc = TOC()
