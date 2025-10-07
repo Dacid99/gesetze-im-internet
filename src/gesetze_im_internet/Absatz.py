@@ -13,6 +13,8 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from typing_extensions import override
+
 from gesetze_im_internet.exceptions import ImproperTagError
 from gesetze_im_internet.utils import int2roman, register, wrap_node
 
@@ -33,7 +35,8 @@ class Absatz:
     NR_REGEX = r"^\s*\(\s*(\d+)\s*\)"
     STR_TEMPLATE = "%(norm)s %(nr)s"
 
-    def __init__(self, absatz_node: etree.Element) -> None:
+    @override
+    def __init__(self, absatz_node: etree._Element) -> None:
         if absatz_node.tag != self._TAG:
             raise ImproperTagError()
         self._absatz_node = absatz_node
@@ -42,10 +45,12 @@ class Absatz:
         """The ordering number for this absatz. 1 if no number is given in the text."""
         return self.nr or 1
 
+    @override
     def __str__(self) -> str:
         """The text for this absatz."""
         return self._absatz_node.text or ""
 
+    @override
     def __repr__(self) -> str:
         """The complete reference to this absatz."""
         return self.STR_TEMPLATE % {
@@ -59,8 +64,10 @@ class Absatz:
 
     def __iter__(self) -> Iterable[str]:
         """Iterator over all sentences in the absatz."""
-        for sentence in self._absatz_node.text.split(". "):
-            yield sentence.strip()
+        text = self._absatz_node.text
+        if text:
+            for sentence in text.split(". "):
+                yield sentence.strip()
 
     @property
     def nr(self) -> int | None:
@@ -73,9 +80,9 @@ class Absatz:
         return None
 
     @property
-    def norm(self) -> Norm:
+    def norm(self) -> Norm | None:
         """The norm that this absatz is a part of."""
         norm_candidate = self._absatz_node.getparent()
-        while norm_candidate.tag != "norm":
+        while norm_candidate is not None and norm_candidate.tag != "norm":
             norm_candidate = norm_candidate.getparent()
-        return wrap_node(norm_candidate)
+        return wrap_node(norm_candidate) if norm_candidate is not None else None

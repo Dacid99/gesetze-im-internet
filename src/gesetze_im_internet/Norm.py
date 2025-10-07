@@ -15,6 +15,8 @@ from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from typing_extensions import override
+
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
 from gesetze_im_internet.exceptions import ImproperTagError
 from gesetze_im_internet.utils import register, replace_umlauts, wrap_node
@@ -44,7 +46,8 @@ class Norm:
         + "www.gesetze-im-internet.de/%(jurabk)s/%(dokument_doknr)s.html#%(doknr)s"
     )
 
-    def __init__(self, norm_node: etree.Element) -> None:
+    @override
+    def __init__(self, norm_node: etree._Element) -> None:
         if norm_node.tag != self._TAG:
             raise ImproperTagError()
         self._norm_node = norm_node
@@ -62,10 +65,12 @@ class Norm:
         """Gets an absatz by index."""
         return wrap_node(self._norm_node.findall(".//P")[absatz_nr])
 
+    @override
     def __str__(self) -> str:
         """The text content of this norm."""
         return "\n".join([f"({int(absatz)}) {absatz}" for absatz in self])
 
+    @override
     def __repr__(self) -> str:
         """The full reference to this norm."""
         return (
@@ -101,21 +106,24 @@ class Norm:
         return (
             self.URL_GLIEDERUNG_TEMPLATE
             % {
-                "jurabk": replace_umlauts(self.jurabk.lower()),
+                "jurabk": replace_umlauts(self.jurabk.lower()) if self.jurabk else "",
                 "dokument_doknr": self.dokument.doknr,
                 "doknr": self.doknr,
             }
             if self.is_gliederung
             else self.URL_NORM_TEMPLATE
-            % {"jurabk": replace_umlauts(self.jurabk.lower()), "nr": self.nr}
+            % {
+                "jurabk": replace_umlauts(self.jurabk.lower()) if self.jurabk else "",
+                "nr": self.nr,
+            }
         )
 
     @cached_property
-    def _metadaten(self):
+    def _metadaten(self) -> etree._Element | None:
         return self._norm_node.find("metadaten")
 
     @cached_property
-    def _textdaten(self):
+    def _textdaten(self) -> etree._Element | None:
         return self._norm_node.find("textdaten")
 
     @property
@@ -136,27 +144,31 @@ class Norm:
     @property
     def jurabk(self) -> str | None:
         """The common abbreviation of the document name ('Juristische Abkürzung')."""
-        return self._metadaten.findtext("jurabk")
+        return self._metadaten.findtext("jurabk") if self._metadaten else None
 
     @property
     def amtabk(self) -> str | None:
         """The official abbreviation of the document name ('Amtliche Abkürzung')."""
-        return self._metadaten.findtext("amtabk")
+        return self._metadaten.findtext("amtabk") if self._metadaten else None
 
     @property
     def enbez(self) -> str | None:
         """The short reference for this law (paragraph notation)."""
-        return self._metadaten.findtext("enbez")
+        return self._metadaten.findtext("enbez") if self._metadaten else None
 
     @property
     def titel(self) -> str | None:
         """The title of this law."""
-        return self._metadaten.findtext("titel")
+        return self._metadaten.findtext("titel") if self._metadaten else None
 
     @property
     def titel_format(self) -> str | None:
         """The format of this laws title."""
-        return self._metadaten.find("titel").attrib.get("format")
+        if self._metadaten is not None:
+            titel = self._metadaten.find("titel")
+            if titel is not None:
+                return titel.attrib.get("format")
+        return None
 
     @property
     def nr(self) -> int | None:
@@ -168,24 +180,36 @@ class Norm:
         return None
 
     @cached_property
-    def _gliederungseinheit(self):
-        return self._metadaten.find("gliederungseinheit")
+    def _gliederungseinheit(self) -> etree._Element | None:
+        return self._metadaten.find("gliederungseinheit") if self._metadaten else None
 
     @property
     def gliederungskennzahl(self) -> str | None:
-        return self._gliederungseinheit.findtext("gliederungskennzahl")
+        return (
+            self._gliederungseinheit.findtext("gliederungskennzahl")
+            if self.is_gliederungseinheit is not None
+            else None
+        )
 
     @property
     def gliederungsbez(self) -> str | None:
-        return self._gliederungseinheit.findtext("gliederungsbez")
+        return (
+            self._gliederungseinheit.findtext("gliederungsbez")
+            if self.is_gliederungseinheit is not None
+            else None
+        )
 
     @property
     def gliederungstitel(self) -> str | None:
-        return self._gliederungseinheit.findtext("gliederungstitel")
+        return (
+            self._gliederungseinheit.findtext("gliederungstitel")
+            if self.is_gliederungseinheit is not None
+            else None
+        )
 
     @property
-    def dokument(self) -> Dokument:
-        dokument_candidate = self._norm_node.getparent()
-        while dokument_candidate.tag != "dokumente":
+    def dokument(self) -> Dokument | None:
+        dokument_candidate = self._norm_node
+        while dokument_candidate is not None and dokument_candidate.tag != "dokumente":
             dokument_candidate = dokument_candidate.getparent()
-        return wrap_node(dokument_candidate)
+        return wrap_node(dokument_candidate) if dokument_candidate is not None else None

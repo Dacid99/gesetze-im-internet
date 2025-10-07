@@ -12,6 +12,7 @@ from collections.abc import Iterator
 
 from lxml import etree
 from requests import codes, get
+from typing_extensions import override
 
 from gesetze_im_internet.exceptions import DownloadError
 
@@ -23,6 +24,7 @@ class TOC:
 
     URL = "https://www.gesetze-im-internet.de/gii-toc.xml"
 
+    @override
     def __init__(self, toc_url: str = URL) -> None:
         self._dict = {}
         self.parse(self.get(toc_url))
@@ -31,10 +33,12 @@ class TOC:
         """Iterator over the document in the toc."""
         return iter(self._dict.keys())
 
+    @override
     def __str__(self) -> str:
         """The name of the toc."""
         return "Gesetze-im-Internet Inhaltsverzeichnis"
 
+    @override
     def __repr__(self) -> str:
         """The name of the toc."""
         return str(self)
@@ -64,4 +68,4 @@ class TOC:
         for item in items:
             title = item.find("title")
             if title is not None:
-                self._dict[title.text] = item.find("link").text
+                self._dict[title.text] = item.findtext("link")

@@ -18,6 +18,7 @@ from zipfile import ZipFile
 
 from lxml import etree
 from requests import get
+from typing_extensions import override
 
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
 from gesetze_im_internet.exceptions import BadDataError, ValidationError
@@ -37,6 +38,7 @@ class Dokument:
     _TAG = "dokumente"
     URL_TEMPLATE = WEB_PROTOCOL + "www.gesetze-im-internet.de/%(jurabk)s/index.html"
 
+    @override
     def __init__(self, book_url: str | None = None, validate: bool = False) -> None:
         if book_url:
             self.parse(self.get(book_url), validate=validate)
@@ -58,13 +60,21 @@ class Dokument:
         """Get a norm by index."""
         return wrap_node(self._tree.findall("norm")[index])
 
+    @override
     def __str__(self) -> str:
         """The text content of the document."""
         return "\n".join([repr(norm) + "\n" + str(norm) for norm in self])
 
+    @override
     def __repr__(self) -> str:
         """The full reference to the document."""
-        return self.langue or self.kurzue or self.amtabk or self.jurabk
+        return (
+            self.langue
+            or self.kurzue
+            or self.amtabk
+            or self.jurabk
+            or super().__repr__()
+        )
 
     def __len__(self) -> int:
         """The number of norms in the document."""
@@ -94,25 +104,27 @@ class Dokument:
         if not dtd.validate(self._tree):
             raise ValidationError(dtd.error_log.filter_from_errors()[0])
 
-    def _get_dtd(self, dtd_url: str):
+    def _get_dtd(self, dtd_url: str) -> bytes:
         response = get(dtd_url)
         return response.content
 
     @property
     def href(self) -> str:
         """The url under which the html version of this document can be found."""
-        return self.URL_TEMPLATE % {"jurabk": replace_umlauts(self.jurabk.lower())}
+        return self.URL_TEMPLATE % {
+            "jurabk": replace_umlauts(self.jurabk.lower()) if self.jurabk else ""
+        }
 
     @cached_property
-    def _dokumente(self):
+    def _dokumente(self) -> etree._Element | None:
         return self._tree.getroot()
 
     @cached_property
-    def _metadaten(self):
+    def _metadaten(self) -> etree._Element | None:
         return self._dokumente[0].find("metadaten")
 
     @cached_property
-    def _textdaten(self):
+    def _textdaten(self) -> etree._Element | None:
         return self._dokumente[0].find("textdaten")
 
     @property
@@ -133,75 +145,95 @@ class Dokument:
     @property
     def jurabk(self) -> str | None:
         """The common abbreviation of the document name ('Juristische Abkürzung')."""
-        return self._metadaten.findtext("jurabk")
+        return self._metadaten.findtext("jurabk") if self._metadaten else None
 
     @property
     def amtabk(self) -> str | None:
         """The official abbreviation of the document name ('Amtliche Abkürzung')."""
-        return self._metadaten.findtext("amtabk")
+        return self._metadaten.findtext("amtabk") if self._metadaten else None
 
     @property
     def kurzue(self) -> str | None:
         """The shortform of the full document name."""
-        return self._metadaten.findtext("kurzue")
+        return self._metadaten.findtext("kurzue") if self._metadaten else None
 
     @property
     def langue(self) -> str | None:
         """The long form of the full document name."""
-        return self._metadaten.findtext("langue")
+        return self._metadaten.findtext("langue") if self._metadaten else None
+
+    @property
+    def _ausfertigung(self) -> etree._Element | None:
+        return self._metadaten.find("ausfertigung-datum") if self._metadaten else None
 
     @property
     def ausfertigung_datum(self) -> datetime | None:
         """The date this law was signed into effect."""
-        ausfertigung_datum = self._metadaten.findtext("ausfertigung-datum")
-        return (
-            datetime.strptime(ausfertigung_datum, "%Y-%m-%d").astimezone(TIMEZONE)
-            if ausfertigung_datum
-            else None
-        )
+        if self._ausfertigung:
+            text = self._ausfertigung.text
+            if text:
+                return datetime.strptime(text, "%Y-%m-%d").astimezone(TIMEZONE)
+        return None
 
     @property
     def ausfertigung_manuell(self) -> bool | None:
         """Whether this law was signed manually."""
-        ausfertigung_datum = self._metadaten.find("ausfertigung-datum")
-        return (
-            ausfertigung_datum.attrib.get("manuell").lower() == "ja"
-            if ausfertigung_datum is not None
-            else None
-        )
+        if self._ausfertigung is not None:
+            ausfertigung_manuell = self._ausfertigung.attrib.get("manuell")
+            if ausfertigung_manuell is not None:
+                return ausfertigung_manuell.lower() == "ja"
+        return None
+
+    @property
+    def _fundstelle(self) -> etree._Element | None:
+        return self._metadaten.find("fundstelle") if self._metadaten else None
 
     @property
     def fundstelle_typ(self) -> str | None:
-        fundstelle = self._metadaten.find("fundstelle")
-        return fundstelle.attrib.get("typ") if fundstelle is not None else None
+        return (
+            self._fundstelle.attrib.get("typ") if self._fundstelle is not None else None
+        )
 
     @property
     def fundstelle_periodikum(self) -> str | None:
-        fundstelle = self._metadaten.find("fundstelle")
-        return fundstelle.findtext("periodikum") if fundstelle is not None else None
-
-    @property
-    def fundstelle_zitstelle(self) -> str | None:
-        fundstelle = self._metadaten.find("fundstelle")
-        return fundstelle.findtext("zitstelle") if fundstelle is not None else None
-
-    @property
-    def standangabe_typ(self) -> str | None:
-        standangabe = self._metadaten.find("standangabe")
-        return standangabe.findtext("standtyp") if standangabe is not None else None
-
-    @property
-    def standangabe_checked(self) -> str | None:
-        standangabe = self._metadaten.find("standangabe")
         return (
-            standangabe.attrib.get("checked").lower() == "ja"
-            if standangabe is not None
+            self._fundstelle.findtext("periodikum")
+            if self._fundstelle is not None
             else None
         )
 
     @property
-    def standangabe_kommentar(self) -> str | None:
-        standangabe = self._metadaten.find("standangabe")
+    def fundstelle_zitstelle(self) -> str | None:
         return (
-            standangabe.findtext("standkommentar") if standangabe is not None else None
+            self._fundstelle.findtext("zitstelle")
+            if self._fundstelle is not None
+            else None
+        )
+
+    @property
+    def _standangabe(self) -> etree._Element | None:
+        return self._metadaten.find("standangabe") if self._metadaten else None
+
+    @property
+    def standangabe_typ(self) -> str | None:
+        return (
+            self._standangabe.findtext("standtyp")
+            if self._standangabe is not None
+            else None
+        )
+
+    @property
+    def standangabe_checked(self) -> bool | None:
+        if self._standangabe is not None:
+            standangabe_checked = self._standangabe.attrib.get("checked")
+            if standangabe_checked is not None:
+                return standangabe_checked.lower() == "ja"
+        return None
+
+    @property
+    def standangabe_kommentar(self) -> str | None:
+        return (
+            self._standangabe.findtext("standkommentar")
+            if self._standangabe is not None
+            else None
         )
