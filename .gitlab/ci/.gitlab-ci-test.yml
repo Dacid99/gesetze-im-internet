@@ -4,9 +4,8 @@ test_codebase:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
     - if: $CI_COMMIT_TAG
-  before_script:
-    - poetry install --with dev
   script:
+    - poetry install --with dev
     - echo "Testing codebase ..."
     - mkdir -p $TEST_REPORT_PATH
     - poetry run pytest $TEST_PATH --config-file $TEST_CONFIG_PATH"pytest.ini" | tee $TEST_REPORT_PATH"pytest_test.ansi"

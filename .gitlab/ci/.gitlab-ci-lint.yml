@@ -4,9 +4,8 @@ lint_codebase:
     - if: $CI_COMMIT_TAG
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
-  before_script:
-    - poetry install --with dev
   script:
+    - poetry install --with dev
     - mkdir -p $CHECK_REPORT_PATH'/mypy'
     - echo "Checking codebase ..."
     - poetry run ruff check -show-fixes --config=$CHECK_CONFIG_PATH'ruff.toml' | tee $CHECK_REPORT_PATH'ruff_check.ansi' || true
