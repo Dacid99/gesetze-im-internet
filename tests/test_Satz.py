@@ -9,22 +9,12 @@
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
 
-from .Absatz import Absatz
-from .Dokument import Dokument
-from .Norm import Norm
-from .Nummer import Nummer
-from .Satz import Satz
-from .TOC import TOC
+def test_Satz(toc):
+    satz = toc("Verwaltungsgerichtsordnung")[8][2][1]
 
-
-__all__ = [
-    "TOC",
-    "Absatz",
-    "Dokument",
-    "Norm",
-    "Nummer",
-    "Satz",
-]
-
-
-toc = TOC()
+    assert repr(satz)
+    assert len(satz)
+    assert int(satz)
+    assert str(satz)
+    assert list(satz)
+    assert satz.nr

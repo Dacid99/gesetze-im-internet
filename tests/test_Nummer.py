@@ -9,22 +9,14 @@
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
 
-from .Absatz import Absatz
-from .Dokument import Dokument
-from .Norm import Norm
-from .Nummer import Nummer
-from .Satz import Satz
-from .TOC import TOC
+def test_Nummer(toc):
+    book = toc("Gerichtsverfassungsgesetz")
+    norm = book[24]
+    absatz = norm[1]
+    satz = absatz[0]
+    nummer = satz[1]
 
-
-__all__ = [
-    "TOC",
-    "Absatz",
-    "Dokument",
-    "Norm",
-    "Nummer",
-    "Satz",
-]
-
-
-toc = TOC()
+    assert int(nummer)
+    assert str(nummer)
+    assert repr(nummer)
+    assert nummer.nr

@@ -19,7 +19,12 @@ from typing_extensions import override
 
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
 from gesetze_im_internet.exceptions import ImproperTagError
-from gesetze_im_internet.utils import register, replace_umlauts, wrap_node
+from gesetze_im_internet.utils import (
+    alphanumeric2float,
+    register,
+    replace_umlauts,
+    wrap_node,
+)
 
 
 if TYPE_CHECKING:
@@ -35,7 +40,7 @@ if TYPE_CHECKING:
 class Norm:
     """A wrapper for a norm xml element."""
 
-    _TAG = "norm"
+    TAG = "norm"
     STR_NORM_TEMPLATE = "%(jurabk)s %(enbez)s %(titel)s"
     STR_GLIEDERUNG_TEMPLATE = "%(jurabk)s %(gliederungsbez)s %(gliederungstitel)s"
     URL_NORM_TEMPLATE = (
@@ -47,10 +52,10 @@ class Norm:
     )
 
     @override
-    def __init__(self, norm_node: etree._Element) -> None:
-        if norm_node.tag != self._TAG:
+    def __init__(self, node: etree._Element) -> None:
+        if node.tag != self.TAG:
             raise ImproperTagError()
-        self._norm_node = norm_node
+        self._norm_node = node
 
     def __iter__(self) -> Iterable[Absatz]:
         """Iterator over the absätze in the norm."""
@@ -87,8 +92,13 @@ class Norm:
 
     def __int__(self) -> int:
         """The number (paragraph or gliederung) of this norm."""
+        return int(float(self))
+
+    def __float__(self) -> float:
         return (
-            int(self.gliederungskennzahl or 0) if self.is_gliederung else (self.nr or 0)
+            int(self.gliederungskennzahl or 0)
+            if self.is_gliederung
+            else alphanumeric2float(self.nr or 0)
         )
 
     def __len__(self) -> int:
@@ -129,7 +139,7 @@ class Norm:
     @property
     def builddate(self) -> datetime | None:
         """The datetime the underlying xml was built."""
-        builddate = self._norm_node.attrib.get("builddate")
+        builddate = self._norm_node.get("builddate")
         return (
             datetime.strptime(builddate, BUILDDATE_FORMAT).astimezone(TIMEZONE)
             if builddate
@@ -139,27 +149,35 @@ class Norm:
     @property
     def doknr(self) -> str | None:
         """The document number of the underlying xml file."""
-        return self._norm_node.attrib.get("doknr")
+        return self._norm_node.get("doknr")
 
     @property
     def jurabk(self) -> str | None:
         """The common abbreviation of the document name ('Juristische Abkürzung')."""
-        return self._metadaten.findtext("jurabk") if self._metadaten else None
+        return (
+            self._metadaten.findtext("jurabk") if self._metadaten is not None else None
+        )
 
     @property
     def amtabk(self) -> str | None:
         """The official abbreviation of the document name ('Amtliche Abkürzung')."""
-        return self._metadaten.findtext("amtabk") if self._metadaten else None
+        return (
+            self._metadaten.findtext("amtabk") if self._metadaten is not None else None
+        )
 
     @property
     def enbez(self) -> str | None:
         """The short reference for this law (paragraph notation)."""
-        return self._metadaten.findtext("enbez") if self._metadaten else None
+        return (
+            self._metadaten.findtext("enbez") if self._metadaten is not None else None
+        )
 
     @property
     def titel(self) -> str | None:
         """The title of this law."""
-        return self._metadaten.findtext("titel") if self._metadaten else None
+        return (
+            self._metadaten.findtext("titel") if self._metadaten is not None else None
+        )
 
     @property
     def titel_format(self) -> str | None:
@@ -167,7 +185,7 @@ class Norm:
         if self._metadaten is not None:
             titel = self._metadaten.find("titel")
             if titel is not None:
-                return titel.attrib.get("format")
+                return titel.get("format")
         return None
 
     @property
@@ -181,13 +199,17 @@ class Norm:
 
     @cached_property
     def _gliederungseinheit(self) -> etree._Element | None:
-        return self._metadaten.find("gliederungseinheit") if self._metadaten else None
+        return (
+            self._metadaten.find("gliederungseinheit")
+            if self._metadaten is not None
+            else None
+        )
 
     @property
     def gliederungskennzahl(self) -> str | None:
         return (
             self._gliederungseinheit.findtext("gliederungskennzahl")
-            if self.is_gliederungseinheit is not None
+            if self.is_gliederung is not None
             else None
         )
 
@@ -195,7 +217,7 @@ class Norm:
     def gliederungsbez(self) -> str | None:
         return (
             self._gliederungseinheit.findtext("gliederungsbez")
-            if self.is_gliederungseinheit is not None
+            if self.is_gliederung is not None
             else None
         )
 
@@ -203,7 +225,7 @@ class Norm:
     def gliederungstitel(self) -> str | None:
         return (
             self._gliederungseinheit.findtext("gliederungstitel")
-            if self.is_gliederungseinheit is not None
+            if self.is_gliederung is not None
             else None
         )
 

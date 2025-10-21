@@ -20,7 +20,7 @@ def register(cls):
 
 
 def wrap_node(node):
-    return NODE_WRAPPER_CLASSES[node.tag](node)
+    return NODE_WRAPPER_CLASSES[node.tag](node=node)
 
 
 def int2roman(number: int) -> str:
@@ -52,6 +52,23 @@ def int2roman(number: int) -> str:
                 roman += roman_base
                 number -= int_base
     return roman
+
+
+def alphanumeric2float(alphanumeric: str) -> float:
+    match = re.search(r"\d([a-z])$", alphanumeric)
+    if match:
+        return (
+            int(alphanumeric.removesuffix(match.group(1)))
+            + (ord(match.group(1)) - 96) / 100
+        )
+    return int(alphanumeric)
+
+
+def float2alphanumeric(float: float) -> str:
+    remainder = float % 1
+    if remainder:
+        return str(int(float - remainder)) + chr(int(remainder * 100) + 96)
+    return str(int(float))
 
 
 def replace_umlauts(string: str) -> str:

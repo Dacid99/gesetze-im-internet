@@ -18,7 +18,7 @@ from zipfile import ZipFile
 
 from lxml import etree
 from requests import get
-from typing_extensions import override
+from typing_extensions import overload, override
 
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
 from gesetze_im_internet.exceptions import BadDataError, ValidationError
@@ -35,13 +35,24 @@ if TYPE_CHECKING:
 class Dokument:
     """A wrapper for a dokumente xml element."""
 
-    _TAG = "dokumente"
+    TAG = "dokumente"
     URL_TEMPLATE = WEB_PROTOCOL + "www.gesetze-im-internet.de/%(jurabk)s/index.html"
 
     @override
-    def __init__(self, book_url: str | None = None, validate: bool = False) -> None:
+    def __init__(
+        self,
+        node: etree._Element | None = None,
+        book_url: str | None = None,
+        validate: bool = False,
+    ) -> None:
         if book_url:
-            self.parse(self.get(book_url), validate=validate)
+            self.parse(self.get(book_url))
+            if validate:
+                self.validate()
+        elif node is not None:
+            self._dokumente = node
+            if validate:
+                self.validate()
 
     def __iter__(self) -> Iterable[Norm]:
         """Iterator over all norms in the document."""
@@ -58,7 +69,7 @@ class Dokument:
 
     def __getitem__(self, index: int) -> Norm:
         """Get a norm by index."""
-        return wrap_node(self._tree.findall("norm")[index])
+        return wrap_node(self._dokumente.findall("norm")[index])
 
     @override
     def __str__(self) -> str:
@@ -91,22 +102,17 @@ class Dokument:
                         return book_file.read()
             raise BadDataError("zip file did not include a xml file")
 
-    def parse(self, book_data: bytes, validate: bool = False) -> None:
+    def parse(self, book_data: bytes) -> None:
         """Parse dokument data into this instance and validate if needed."""
-        self._tree = etree.parse(BytesIO(book_data))
-        if validate:
-            self.validate()
+        self._dokumente = etree.fromstring(book_data)
 
     def validate(self) -> None:
         """Validate this documents xml data."""
-        dtd_data = self._get_dtd(self._tree.docinfo.system_url)
+        tree = etree.ElementTree(self._dokumente)
+        dtd_data = get(tree.docinfo.system_url).content
         dtd = etree.DTD(BytesIO(dtd_data))
-        if not dtd.validate(self._tree):
+        if not dtd.validate(tree):
             raise ValidationError(dtd.error_log.filter_from_errors()[0])
-
-    def _get_dtd(self, dtd_url: str) -> bytes:
-        response = get(dtd_url)
-        return response.content
 
     @property
     def href(self) -> str:
@@ -114,10 +120,6 @@ class Dokument:
         return self.URL_TEMPLATE % {
             "jurabk": replace_umlauts(self.jurabk.lower()) if self.jurabk else ""
         }
-
-    @cached_property
-    def _dokumente(self) -> etree._Element | None:
-        return self._tree.getroot()
 
     @cached_property
     def _metadaten(self) -> etree._Element | None:
@@ -130,7 +132,7 @@ class Dokument:
     @property
     def builddate(self) -> datetime | None:
         """The datetime the underlying xml was built."""
-        builddate = self._dokumente.attrib.get("builddate")
+        builddate = self._dokumente.get("builddate")
         return (
             datetime.strptime(builddate, BUILDDATE_FORMAT).astimezone(TIMEZONE)
             if builddate
@@ -140,7 +142,7 @@ class Dokument:
     @property
     def doknr(self) -> str | None:
         """The document number of the underlying xml file."""
-        return self._dokumente.attrib.get("doknr")
+        return self._dokumente.get("doknr")
 
     @property
     def jurabk(self) -> str | None:
@@ -179,7 +181,7 @@ class Dokument:
     def ausfertigung_manuell(self) -> bool | None:
         """Whether this law was signed manually."""
         if self._ausfertigung is not None:
-            ausfertigung_manuell = self._ausfertigung.attrib.get("manuell")
+            ausfertigung_manuell = self._ausfertigung.get("manuell")
             if ausfertigung_manuell is not None:
                 return ausfertigung_manuell.lower() == "ja"
         return None
@@ -190,9 +192,7 @@ class Dokument:
 
     @property
     def fundstelle_typ(self) -> str | None:
-        return (
-            self._fundstelle.attrib.get("typ") if self._fundstelle is not None else None
-        )
+        return self._fundstelle.get("typ") if self._fundstelle is not None else None
 
     @property
     def fundstelle_periodikum(self) -> str | None:
@@ -225,7 +225,7 @@ class Dokument:
     @property
     def standangabe_checked(self) -> bool | None:
         if self._standangabe is not None:
-            standangabe_checked = self._standangabe.attrib.get("checked")
+            standangabe_checked = self._standangabe.get("checked")
             if standangabe_checked is not None:
                 return standangabe_checked.lower() == "ja"
         return None

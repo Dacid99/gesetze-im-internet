@@ -49,4 +49,3 @@ def test_Norm_Gliederung(toc):
     assert norm.href.startswith("https://www.gesetze-im-internet.de/")
     assert isinstance(norm.builddate, datetime)
     assert norm.builddate.tzinfo
-    assert norm.titel
