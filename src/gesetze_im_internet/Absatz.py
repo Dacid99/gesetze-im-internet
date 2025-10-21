@@ -17,6 +17,7 @@ from lxml import etree
 from typing_extensions import override
 
 from gesetze_im_internet.exceptions import ImproperTagError
+from gesetze_im_internet.GesetzNode import GesetzNode
 from gesetze_im_internet.utils import int2roman, register, wrap_node
 
 
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
 
 
 @register
-class Absatz:
+class Absatz(GesetzNode):
     """A wrapper for a P xml element."""
 
     TAG = "P"
@@ -39,7 +40,7 @@ class Absatz:
     def __init__(self, node: etree._Element) -> None:
         if node.tag != self.TAG:
             raise ImproperTagError("")
-        self._absatz_node = node
+        self._node = node
         self._modify_node()
 
     def __int__(self) -> int:
@@ -61,15 +62,15 @@ class Absatz:
 
     def __len__(self) -> int:
         """The number of sentences in this absatz."""
-        return len(self._absatz_node.findall(".//satz"))
+        return len(self._node.findall(".//satz"))
 
     def __iter__(self) -> Iterable[str]:
         """Iterator over all sentences in the absatz."""
-        for satz in self._absatz_node.iterfind(".//satz"):
+        for satz in self._node.iterfind(".//satz"):
             yield wrap_node(satz)
 
     def __getitem__(self, index: int) -> Satz:
-        return wrap_node(self._absatz_node.findall(".//satz")[index])
+        return wrap_node(self._node.findall(".//satz")[index])
 
     def __call__(self, index: int) -> Satz:
         return self[index]
@@ -77,7 +78,7 @@ class Absatz:
     @property
     def nr(self) -> int | None:
         """The ordering number for this absatz. None if no number is given in the text."""
-        text = self._absatz_node.text
+        text = self._node.text
         if text:
             nr_match = re.search(self.NR_REGEX, text)
             if nr_match:
@@ -87,28 +88,26 @@ class Absatz:
     @property
     def norm(self) -> Norm | None:
         """The norm that this absatz is a part of."""
-        norm_candidate = self._absatz_node.getparent()
+        norm_candidate = self._node.getparent()
         while norm_candidate is not None and norm_candidate.tag != "norm":
             norm_candidate = norm_candidate.getparent()
         return wrap_node(norm_candidate) if norm_candidate is not None else None
 
     def _modify_node(self):
-        for nummer in self._absatz_node.findall(".//DL"):
+        for nummer in self._node.findall(".//DL"):
             nummer_contents = nummer.findall(".//LA")
             if nummer_contents and nummer_contents[-1].text.strip().endswith("."):
                 nummer.tail = ". " + nummer.tail if nummer.tail else ". "
         absatz_text = (
-            etree.tostring(self._absatz_node).removeprefix(b"<P>").removesuffix(b"</P>")
+            etree.tostring(self._node).removeprefix(b"<P>").removesuffix(b"</P>")
         )
         absatz_text = re.sub(rb"<DL.*</DL>", b"<nummern/>", absatz_text)
         for satz_nr, satz in enumerate(absatz_text.split(b". ")):
-            satz_node = etree.SubElement(
-                self._absatz_node, "satz", {"nr": str(satz_nr + 1)}
-            )
+            satz_node = etree.SubElement(self._node, "satz", {"nr": str(satz_nr + 1)})
             satz_parts = satz.split(b"<nummern/>")
             if len(satz_parts) > 1:
                 satz_node.text = satz_parts[0]
-                satz_node.append(self._absatz_node.find(".//DL"))
+                satz_node.append(self._node.find(".//DL"))
                 satz_node.find("DL").tail = satz_parts[1]
             else:
                 satz_node.text = satz_parts[0] + b"."

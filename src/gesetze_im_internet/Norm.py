@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
-from gesetze_im_internet.exceptions import ImproperTagError
+from gesetze_im_internet.GesetzNode import GesetzNode
 from gesetze_im_internet.utils import (
     alphanumeric2float,
     register,
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 
 @register
-class Norm:
+class Norm(GesetzNode):
     """A wrapper for a norm xml element."""
 
     TAG = "norm"
@@ -51,15 +51,9 @@ class Norm:
         + "www.gesetze-im-internet.de/%(jurabk)s/%(dokument_doknr)s.html#%(doknr)s"
     )
 
-    @override
-    def __init__(self, node: etree._Element) -> None:
-        if node.tag != self.TAG:
-            raise ImproperTagError()
-        self._norm_node = node
-
     def __iter__(self) -> Iterable[Absatz]:
         """Iterator over the absätze in the norm."""
-        for absatz_node in self._norm_node.iterfind(".//P"):
+        for absatz_node in self._node.iterfind(".//P"):
             yield wrap_node(absatz_node)
 
     def __call__(self, absatz_nr: int) -> Absatz:
@@ -68,7 +62,7 @@ class Norm:
 
     def __getitem__(self, absatz_nr: int) -> Absatz:
         """Gets an absatz by index."""
-        return wrap_node(self._norm_node.findall(".//P")[absatz_nr])
+        return wrap_node(self._node.findall(".//P")[absatz_nr])
 
     @override
     def __str__(self) -> str:
@@ -103,7 +97,7 @@ class Norm:
 
     def __len__(self) -> int:
         """The number of absätze in this norm."""
-        return len(self._norm_node.findall(".//P"))
+        return len(self._node.findall(".//P"))
 
     @property
     def is_gliederung(self) -> bool:
@@ -130,16 +124,16 @@ class Norm:
 
     @cached_property
     def _metadaten(self) -> etree._Element | None:
-        return self._norm_node.find("metadaten")
+        return self._node.find("metadaten")
 
     @cached_property
     def _textdaten(self) -> etree._Element | None:
-        return self._norm_node.find("textdaten")
+        return self._node.find("textdaten")
 
     @property
     def builddate(self) -> datetime | None:
         """The datetime the underlying xml was built."""
-        builddate = self._norm_node.get("builddate")
+        builddate = self._node.get("builddate")
         return (
             datetime.strptime(builddate, BUILDDATE_FORMAT).astimezone(TIMEZONE)
             if builddate
@@ -149,7 +143,7 @@ class Norm:
     @property
     def doknr(self) -> str | None:
         """The document number of the underlying xml file."""
-        return self._norm_node.get("doknr")
+        return self._node.get("doknr")
 
     @property
     def jurabk(self) -> str | None:
@@ -231,7 +225,7 @@ class Norm:
 
     @property
     def dokument(self) -> Dokument | None:
-        dokument_candidate = self._norm_node
+        dokument_candidate = self._node
         while dokument_candidate is not None and dokument_candidate.tag != "dokumente":
             dokument_candidate = dokument_candidate.getparent()
         return wrap_node(dokument_candidate) if dokument_candidate is not None else None

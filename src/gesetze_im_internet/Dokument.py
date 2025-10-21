@@ -18,10 +18,11 @@ from zipfile import ZipFile
 
 from lxml import etree
 from requests import get
-from typing_extensions import overload, override
+from typing_extensions import override
 
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
 from gesetze_im_internet.exceptions import BadDataError, ValidationError
+from gesetze_im_internet.GesetzNode import GesetzNode
 from gesetze_im_internet.utils import register, replace_umlauts, wrap_node
 
 
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
 
 
 @register
-class Dokument:
+class Dokument(GesetzNode):
     """A wrapper for a dokumente xml element."""
 
     TAG = "dokumente"
@@ -50,13 +51,13 @@ class Dokument:
             if validate:
                 self.validate()
         elif node is not None:
-            self._dokumente = node
+            super().__init__(node)
             if validate:
                 self.validate()
 
     def __iter__(self) -> Iterable[Norm]:
         """Iterator over all norms in the document."""
-        iterator = self._dokumente.iter("norm")
+        iterator = self._node.iter("norm")
         next(
             iterator
         )  # needed to skip the first norm, which is purely metadata for the dokument
@@ -69,7 +70,7 @@ class Dokument:
 
     def __getitem__(self, index: int) -> Norm:
         """Get a norm by index."""
-        return wrap_node(self._dokumente.findall("norm")[index])
+        return wrap_node(self._node.findall("norm")[index])
 
     @override
     def __str__(self) -> str:
@@ -89,7 +90,7 @@ class Dokument:
 
     def __len__(self) -> int:
         """The number of norms in the document."""
-        return len(self._dokumente.findall("norm"))
+        return len(self._node.findall("norm"))
 
     def get(self, dokument_url: str) -> bytes:
         """Get a dokuments data from the web."""
@@ -104,11 +105,11 @@ class Dokument:
 
     def parse(self, book_data: bytes) -> None:
         """Parse dokument data into this instance and validate if needed."""
-        self._dokumente = etree.fromstring(book_data)
+        self._node = etree.fromstring(book_data)
 
     def validate(self) -> None:
         """Validate this documents xml data."""
-        tree = etree.ElementTree(self._dokumente)
+        tree = etree.ElementTree(self._node)
         dtd_data = get(tree.docinfo.system_url).content
         dtd = etree.DTD(BytesIO(dtd_data))
         if not dtd.validate(tree):
@@ -123,16 +124,16 @@ class Dokument:
 
     @cached_property
     def _metadaten(self) -> etree._Element | None:
-        return self._dokumente[0].find("metadaten")
+        return self._node[0].find("metadaten")
 
     @cached_property
     def _textdaten(self) -> etree._Element | None:
-        return self._dokumente[0].find("textdaten")
+        return self._node[0].find("textdaten")
 
     @property
     def builddate(self) -> datetime | None:
         """The datetime the underlying xml was built."""
-        builddate = self._dokumente.get("builddate")
+        builddate = self._node.get("builddate")
         return (
             datetime.strptime(builddate, BUILDDATE_FORMAT).astimezone(TIMEZONE)
             if builddate
@@ -142,7 +143,7 @@ class Dokument:
     @property
     def doknr(self) -> str | None:
         """The document number of the underlying xml file."""
-        return self._dokumente.get("doknr")
+        return self._node.get("doknr")
 
     @property
     def jurabk(self) -> str | None:
