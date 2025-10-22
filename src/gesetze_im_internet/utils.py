@@ -10,16 +10,20 @@
 
 import re
 
+from lxml import etree
 
-NODE_WRAPPER_CLASSES = {}
+from gesetze_im_internet.GesetzNode import GesetzNode
 
 
-def register(cls):
+NODE_WRAPPER_CLASSES: dict[str, GesetzNode] = {}
+
+
+def register(cls: GesetzNode):
     NODE_WRAPPER_CLASSES[cls.TAG] = cls
     return cls
 
 
-def wrap_node(node):
+def wrap_node(node: etree._Element):
     return NODE_WRAPPER_CLASSES[node.tag](node=node)
 
 
@@ -55,6 +59,7 @@ def int2roman(number: int) -> str:
 
 
 def alphanumeric2float(alphanumeric: str) -> float:
+    """Convert a alphanumeric ordering number to a float."""
     match = re.search(r"\d([a-z])$", alphanumeric)
     if match:
         return (
@@ -64,11 +69,12 @@ def alphanumeric2float(alphanumeric: str) -> float:
     return float(alphanumeric)
 
 
-def float2alphanumeric(float: float) -> str:
-    remainder = float % 1
+def float2alphanumeric(float_input: float) -> str:
+    """Convert a float to a alphanumeric ordering number."""
+    remainder = float_input % 1
     if remainder:
-        return str(int(float - remainder)) + chr(int(remainder * 100) + 96)
-    return str(int(float))
+        return str(int(float_input - remainder)) + chr(int(remainder * 100) + 96)
+    return str(int(float_input))
 
 
 def replace_umlauts(string: str) -> str:

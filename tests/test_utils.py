@@ -1,3 +1,13 @@
+# SPDX-License-Identifier: EUPL-1.1
+# Copyright (C) 2025 David Aderbauer
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the European Union Public License Version 1.1 as
+# published by the European Union.
+#
+# You should have received a copy of the European Union Public License Version 1.1
+# along with this program. If not, see <https://spdx.org/licenses/>.
+
 import pytest
 
 from gesetze_im_internet import utils
@@ -15,14 +25,14 @@ def test_alphanumeric2float(alphanumeric, expected_float):
 
 
 @pytest.mark.parametrize(
-    "float,expected_alphanumeric",
+    "float_input,expected_alphanumeric",
     [
         (23.01, "23a"),
         (1, "1"),
     ],
 )
-def test_float2alphanumeric(float, expected_alphanumeric):
-    assert utils.float2alphanumeric(float) == expected_alphanumeric
+def test_float2alphanumeric(float_input, expected_alphanumeric):
+    assert utils.float2alphanumeric(float_input) == expected_alphanumeric
 
 
 @pytest.mark.parametrize(

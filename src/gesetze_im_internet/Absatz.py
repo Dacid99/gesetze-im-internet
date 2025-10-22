@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 @register
 class Absatz(GesetzNode):
-    """A wrapper for a P xml element."""
+    """Wrapper class for the P gii-xml element."""
 
     TAG = "P"
     NR_REGEX = r"^\s*\(\s*(\d+)\s*\)"
@@ -70,9 +70,11 @@ class Absatz(GesetzNode):
             yield wrap_node(satz)
 
     def __getitem__(self, index: int) -> Satz:
+        """Gets a Satz by index."""
         return wrap_node(self._node.findall(".//satz")[index])
 
     def __call__(self, index: int) -> Satz:
+        """Gets a Satz by index."""
         return self[index]
 
     @property

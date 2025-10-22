@@ -10,7 +10,6 @@
 
 from __future__ import annotations
 
-import re
 from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING
@@ -38,7 +37,7 @@ if TYPE_CHECKING:
 
 @register
 class Norm(GesetzNode):
-    """A wrapper for a norm xml element."""
+    """Wrapper class for the norm gii-xml element."""
 
     TAG = "norm"
     STR_NORM_TEMPLATE = "%(jurabk)s %(enbez)s %(titel)s"
@@ -200,6 +199,7 @@ class Norm(GesetzNode):
 
     @property
     def gliederungskennzahl(self) -> str | None:
+        """The Kennzahl of this Gliederungseinheit."""
         return (
             self._gliederungseinheit.findtext("gliederungskennzahl")
             if self.is_gliederung is not None
@@ -208,6 +208,7 @@ class Norm(GesetzNode):
 
     @property
     def gliederungsbez(self) -> str | None:
+        """The Bezeichnung of this Gliederungseinheit."""
         return (
             self._gliederungseinheit.findtext("gliederungsbez")
             if self.is_gliederung is not None
@@ -216,6 +217,7 @@ class Norm(GesetzNode):
 
     @property
     def gliederungstitel(self) -> str | None:
+        """The Titel of this Gliederungseinheit."""
         return (
             self._gliederungseinheit.findtext("gliederungstitel")
             if self.is_gliederung is not None
@@ -224,6 +226,7 @@ class Norm(GesetzNode):
 
     @property
     def dokument(self) -> Dokument | None:
+        """The Dokument that this Norm is a part of."""
         dokument_candidate = self._node
         while dokument_candidate is not None and dokument_candidate.tag != "dokumente":
             dokument_candidate = dokument_candidate.getparent()

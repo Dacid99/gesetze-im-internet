@@ -22,20 +22,26 @@ if TYPE_CHECKING:
 
 @register
 class Nummer(GesetzNode):
+    """Wrapper class for the DT nummer gii-xml element."""
+
     TAG = "DT"
     STR_TEMPLATE = "%(satz)s Nr. %(nr)s"
 
     def __int__(self) -> int:
+        """The number of this Nummmer."""
         return self.nr or 1
 
     def __str__(self) -> str:
+        """The text content of this Nummmer."""
         return self._node.findtext(".//LA") or ""
 
     def __repr__(self) -> str:
+        """The full reference to this Nummmer."""
         return self.STR_TEMPLATE % {"satz": repr(self.satz), "nr": int(self)}
 
     @property
     def nr(self) -> int | None:
+        """The number of this Nummmer."""
         try:
             nr = int(self._node.text.strip(". ")) if self._node.text else None
         except ValueError:
@@ -44,6 +50,7 @@ class Nummer(GesetzNode):
 
     @property
     def satz(self) -> Satz:
+        """The Satz this Nummmer is a part of."""
         satz_candidate = self._node.getparent()
         while satz_candidate.tag != "satz":
             satz_candidate = satz_candidate.getparent()

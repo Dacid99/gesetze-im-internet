@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 @register
 class Dokument(GesetzNode):
-    """A wrapper for a dokumente xml element."""
+    """Wrapper class for the dokumente gii-xml element."""
 
     TAG = "dokumente"
     URL_TEMPLATE = WEB_PROTOCOL + "www.gesetze-im-internet.de/%(jurabk)s/index.html"
@@ -44,16 +44,11 @@ class Dokument(GesetzNode):
         self,
         node: etree._Element | None = None,
         book_url: str | None = None,
-        validate: bool = False,
     ) -> None:
         if book_url:
             self.parse(self.get(book_url))
-            if validate:
-                self.validate()
         elif node is not None:
             super().__init__(node)
-            if validate:
-                self.validate()
 
     def __iter__(self) -> Iterable[Norm]:
         """Iterator over all norms in the document."""
@@ -195,10 +190,12 @@ class Dokument(GesetzNode):
 
     @property
     def fundstelle_typ(self) -> str | None:
+        """The type of fundstelle of this dokument."""
         return self._fundstelle.get("typ") if self._fundstelle is not None else None
 
     @property
     def fundstelle_periodikum(self) -> str | None:
+        """The periodikum of the fundstelle of this dokument."""
         return (
             self._fundstelle.findtext("periodikum")
             if self._fundstelle is not None
@@ -207,6 +204,7 @@ class Dokument(GesetzNode):
 
     @property
     def fundstelle_zitstelle(self) -> str | None:
+        """The zitierstelle for the fundstelle of this dokument."""
         return (
             self._fundstelle.findtext("zitstelle")
             if self._fundstelle is not None
@@ -221,6 +219,7 @@ class Dokument(GesetzNode):
 
     @property
     def standangabe_typ(self) -> str | None:
+        """The type of standangabe of this dokument."""
         return (
             self._standangabe.findtext("standtyp")
             if self._standangabe is not None
@@ -229,6 +228,7 @@ class Dokument(GesetzNode):
 
     @property
     def standangabe_checked(self) -> bool | None:
+        """Whether the standangabe of this dokument is checked."""
         if self._standangabe is not None:
             standangabe_checked = self._standangabe.get("checked")
             if standangabe_checked is not None:
@@ -237,6 +237,7 @@ class Dokument(GesetzNode):
 
     @property
     def standangabe_kommentar(self) -> str | None:
+        """The standangabe kommentar of this dokument."""
         return (
             self._standangabe.findtext("standkommentar")
             if self._standangabe is not None

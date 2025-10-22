@@ -49,7 +49,10 @@ class TOC:
 
     def __call__(self, title: str, validate: bool = False) -> Dokument:
         """Get a document by title and validate it if needed."""
-        return Dokument(book_url=self._dict[title], validate=validate)
+        dokument = Dokument(book_url=self._dict[title])
+        if validate:
+            dokument.validate()
+        return dokument
 
     def __getitem__(self, title: str) -> Dokument:
         """Get a document by title."""

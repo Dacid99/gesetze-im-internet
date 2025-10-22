@@ -27,6 +27,8 @@ if TYPE_CHECKING:
 
 @register
 class Satz(GesetzNode):
+    """Wrapper class for the satz gii-xml element."""
+
     TAG = "satz"
     STR_TEMPLATE = "%(absatz)s S. %(nr)s"
 
@@ -35,9 +37,11 @@ class Satz(GesetzNode):
         self._modify_node()
 
     def __int__(self) -> int:
+        """The number of this Satz."""
         return self.nr or 1
 
     def __iter__(self) -> Iterator[Nummer]:
+        """Iterator over the Nummern in this Satz."""
         for nummer_dt, nummer_dd in zip(
             self._node.findall(".//DT"), self._node.findall(".//DD")
         ):
@@ -45,22 +49,28 @@ class Satz(GesetzNode):
             yield wrap_node(nummer_dt)
 
     def __len__(self) -> int:
+        """The number of Nummern in this Satz."""
         return len(self._node.findall(".//DT"))
 
     def __str__(self) -> str:
+        """The text content of this Satz."""
         return self._node.text + "".join([str(nummer) for nummer in self])
 
     def __repr__(self) -> str:
+        """The full reference to this Satz."""
         return self.STR_TEMPLATE % {"absatz": repr(self.absatz), "nr": int(self)}
 
     def __getitem__(self, index: int) -> Nummer:
+        """Gets a Nummer by index."""
         return wrap_node(self._node.findall(".//DT")[index])
 
     def __call__(self, index: int) -> Nummer:
+        """Gets a Nummer by index."""
         return self[index]
 
     @property
     def nr(self) -> int | None:
+        """The number of this Satz."""
         return int(self._node.attrib["nr"])
 
     @property
