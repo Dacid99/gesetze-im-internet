@@ -97,7 +97,7 @@ class Absatz(GesetzNode):
         for nummer in self._node.findall(".//DL"):
             nummer_contents = nummer.findall(".//LA")
             if nummer_contents and nummer_contents[-1].text.strip().endswith("."):
-                nummer.tail = ". " + nummer.tail if nummer.tail else ". "
+                nummer.tail = nummer.tail + ". " if nummer.tail else ". "
         absatz_text = (
             etree.tostring(self._node).removeprefix(b"<P>").removesuffix(b"</P>")
         )

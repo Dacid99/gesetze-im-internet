@@ -172,7 +172,7 @@ class Dokument(GesetzNode):
     @property
     def ausfertigung_datum(self) -> datetime | None:
         """The date this law was signed into effect."""
-        if self._ausfertigung:
+        if self._ausfertigung is not None:
             text = self._ausfertigung.text
             if text:
                 return datetime.strptime(text, "%Y-%m-%d").astimezone(TIMEZONE)
@@ -189,7 +189,9 @@ class Dokument(GesetzNode):
 
     @property
     def _fundstelle(self) -> etree._Element | None:
-        return self._metadaten.find("fundstelle") if self._metadaten else None
+        return (
+            self._metadaten.find("fundstelle") if self._metadaten is not None else None
+        )
 
     @property
     def fundstelle_typ(self) -> str | None:
@@ -213,7 +215,9 @@ class Dokument(GesetzNode):
 
     @property
     def _standangabe(self) -> etree._Element | None:
-        return self._metadaten.find("standangabe") if self._metadaten else None
+        return (
+            self._metadaten.find("standangabe") if self._metadaten is not None else None
+        )
 
     @property
     def standangabe_typ(self) -> str | None:

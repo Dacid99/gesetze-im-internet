@@ -10,7 +10,7 @@
 
 
 def test_Satz(toc):
-    satz = toc("Verwaltungsgerichtsordnung")[8][2][1]
+    satz = toc("Verwaltungsgerichtsordnung")[9][0][0]
 
     assert repr(satz)
     assert len(satz)

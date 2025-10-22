@@ -11,8 +11,8 @@
 
 def test_Nummer(toc):
     book = toc("Gerichtsverfassungsgesetz")
-    norm = book[24]
-    absatz = norm[1]
+    norm = book[38]
+    absatz = norm[0]
     satz = absatz[0]
     nummer = satz[1]
 

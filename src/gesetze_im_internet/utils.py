@@ -58,10 +58,10 @@ def alphanumeric2float(alphanumeric: str) -> float:
     match = re.search(r"\d([a-z])$", alphanumeric)
     if match:
         return (
-            int(alphanumeric.removesuffix(match.group(1)))
+            float(alphanumeric.removesuffix(match.group(1)))
             + (ord(match.group(1)) - 96) / 100
         )
-    return int(alphanumeric)
+    return float(alphanumeric)
 
 
 def float2alphanumeric(float: float) -> str:

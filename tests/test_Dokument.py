@@ -26,3 +26,8 @@ def test_Dokument_from_TOC(toc):
     assert isinstance(dokument.ausfertigung_datum, datetime)
     assert dokument.builddate.tzinfo
     assert dokument.doknr
+    assert dokument.fundstelle_typ
+    assert dokument.fundstelle_periodikum
+    assert dokument.fundstelle_zitstelle
+    assert dokument.standangabe_typ
+    assert dokument.standangabe_kommentar

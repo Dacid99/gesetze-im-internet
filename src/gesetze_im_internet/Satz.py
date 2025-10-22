@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from gesetze_im_internet.exceptions import ImproperTagError
 from gesetze_im_internet.GesetzNode import GesetzNode
 from gesetze_im_internet.utils import register, wrap_node
 
@@ -32,9 +31,8 @@ class Satz(GesetzNode):
     STR_TEMPLATE = "%(absatz)s S. %(nr)s"
 
     def __init__(self, node: etree._Element) -> None:
-        if node.tag != self.TAG:
-            raise ImproperTagError("")
-        self._node = node
+        super().__init__(node)
+        self._modify_node()
 
     def __int__(self) -> int:
         return self.nr or 1
@@ -63,12 +61,18 @@ class Satz(GesetzNode):
 
     @property
     def nr(self) -> int | None:
-        return int(self._node["nr"])
+        return int(self._node.attrib["nr"])
 
     @property
     def absatz(self) -> Absatz:
         """The absatz that this satz is a part of."""
         norm_candidate = self._node.getparent()
-        while norm_candidate is not None and norm_candidate.tag != "satz":
+        while norm_candidate is not None and norm_candidate.tag != "P":
             norm_candidate = norm_candidate.getparent()
         return wrap_node(norm_candidate) if norm_candidate is not None else None
+
+    def _modify_node(self) -> None:
+        for nummer_dt, nummer_dd in zip(
+            self._node.findall(".//DT"), self._node.findall(".//DD")
+        ):
+            nummer_dt.append(nummer_dd)

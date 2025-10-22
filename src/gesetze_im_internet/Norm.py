@@ -89,10 +89,11 @@ class Norm(GesetzNode):
         return int(float(self))
 
     def __float__(self) -> float:
+        """The number (paragraph or gliederung) of this norm."""
         return (
-            int(self.gliederungskennzahl or 0)
+            (float(self.gliederungskennzahl or 0))
             if self.is_gliederung
-            else alphanumeric2float(self.nr or 0)
+            else (self.nr or 0.0)
         )
 
     def __len__(self) -> int:
@@ -183,12 +184,10 @@ class Norm(GesetzNode):
         return None
 
     @property
-    def nr(self) -> int | None:
+    def nr(self) -> float | None:
         """The paragraph number of this law."""
         if self.enbez:
-            nr_match = re.search(r"(\d+)", self.enbez)
-            if nr_match:
-                return int(nr_match.group(1))
+            return alphanumeric2float(self.enbez.strip(" §"))
         return None
 
     @cached_property
