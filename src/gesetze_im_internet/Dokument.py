@@ -59,9 +59,12 @@ class Dokument(GesetzNode):
         for norm in iterator:
             yield wrap_node(norm)
 
-    def __call__(self, index: int) -> Norm:
-        """Get a norm by index."""
-        return self[index]
+    def __call__(self, norm_nr: int | float) -> Norm:
+        """Get a norm by its number."""
+        for norm in self:
+            if float(norm) == norm_nr:
+                return norm
+        return None
 
     def __getitem__(self, index: int) -> Norm:
         """Get a norm by index."""

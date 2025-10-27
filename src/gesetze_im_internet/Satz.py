@@ -63,9 +63,12 @@ class Satz(GesetzNode):
             return [wrap_node(node) for node in nodes]
         return wrap_node(nodes)
 
-    def __call__(self, index: int) -> Nummer:
-        """Gets a Nummer by index."""
-        return self[index]
+    def __call__(self, nummer_nr: int) -> Nummer:
+        """Gets a Nummer by its number."""
+        for nummer in self:
+            if int(nummer) == nummer_nr:
+                return nummer
+        return None
 
     @property
     def nr(self) -> int | None:

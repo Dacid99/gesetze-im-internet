@@ -12,6 +12,4 @@
 - wrapping xml without fetching dokument
 - fussnoten
 - consistently omit 0-element from document norms
-- replace modification of nodes with inplace modification for absatz and getnext for nummer
-- somethings off in modifying node for sätze
-- call is get by nr
+- replace modification of nodes with inplace modification for absatz

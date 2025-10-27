@@ -77,9 +77,12 @@ class Absatz(GesetzNode):
             return [wrap_node(node) for node in nodes]
         return wrap_node(nodes)
 
-    def __call__(self, index: int) -> Satz:
+    def __call__(self, satz_nr: int) -> Satz:
         """Gets a Satz by index."""
-        return self[index]
+        for satz in self:
+            if int(satz) == satz_nr:
+                return satz
+        return None
 
     @property
     def nr(self) -> int | None:

@@ -8,6 +8,8 @@
 # You should have received a copy of the European Union Public License Version 1.1
 # along with this program. If not, see <https://spdx.org/licenses/>.
 
+from __future__ import annotations
+
 from collections.abc import Iterator
 
 from lxml import etree
@@ -54,9 +56,9 @@ class TOC:
             dokument.validate()
         return dokument
 
-    def __getitem__(self, title: str) -> Dokument:
+    def __getitem__(self, index: int) -> Dokument | list[Dokument]:
         """Get a document by title."""
-        return self(title, validate=False)
+        return self(list(self._dict)[index])
 
     def get(self, toc_url: str = URL) -> bytes:
         """Get the toc data from the web."""

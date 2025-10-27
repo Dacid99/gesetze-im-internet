@@ -55,9 +55,12 @@ class Norm(GesetzNode):
         for absatz_node in self._node.iterfind(".//P"):
             yield wrap_node(absatz_node)
 
-    def __call__(self, absatz_nr: int) -> Absatz:
-        """Gets an absatz by index."""
-        return self[absatz_nr]
+    def __call__(self, absatz_nr: int) -> Absatz | None:
+        """Gets an absatz by its number."""
+        for absatz in self:
+            if int(absatz) == absatz_nr:
+                return absatz
+        return None
 
     def __getitem__(self, absatz_nr: int) -> Absatz:
         """Gets an absatz by index."""
