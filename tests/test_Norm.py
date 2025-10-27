@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 def test_Norm_Gesetz(toc):
-    norm = toc["Strafgesetzbuch"][11]
+    norm = toc("Strafgesetzbuch")[11]
 
     assert str(norm)
     assert len(norm)
@@ -32,7 +32,7 @@ def test_Norm_Gesetz(toc):
 
 
 def test_Norm_Gliederung(toc):
-    norm = toc["Verwaltungsverfahrensgesetz"][2]
+    norm = toc("Verwaltungsverfahrensgesetz")[2]
 
     assert str(norm)
     assert len(norm)

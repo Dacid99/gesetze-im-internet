@@ -10,7 +10,7 @@
 
 
 def test_Absatz(toc):
-    absatz = toc["Gesetz über das Bundesverfassungsgericht"][10][0]
+    absatz = toc("Gesetz über das Bundesverfassungsgericht")[10][0]
 
     assert str(absatz)
     assert len(absatz)
