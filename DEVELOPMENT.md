@@ -25,7 +25,7 @@ poetry completions bash >> ~/.bash_completion
 Then install all the dependencies to a virtual environment:
 
 ```bash
-poetry install --with dev,docs --no-root
+poetry install --with dev --no-root
 ```
 
 Finally you can activate the venv with

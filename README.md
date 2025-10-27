@@ -189,3 +189,11 @@ In the same fashion that a document is split into norms, a norm is split in abs√
 Please be aware that the logic for splitting into s√§tze is experimental and may yield faulty results.
 
 Due to the complexity of the german language, further division into alternativen was not possible within the scope of this project.
+
+## Contributing
+
+Everyone is invited to contribute to this project!
+
+Just contact me or send me a merge request on [gitlab](https://gitlab.com/Dacid99/gesetze-im-internet).
+
+Please make sure to read [the contributing guideline](CONTRIBUTING.md) and [the development guide](DEVELOPMENT.md) to get a headstart
