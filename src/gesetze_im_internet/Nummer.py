@@ -33,7 +33,7 @@ class Nummer(GesetzNode):
 
     def __str__(self) -> str:
         """The text content of this Nummmer."""
-        return self._node.findtext(".//LA") or ""
+        return self._node.getnext().find(".//LA") or ""
 
     def __repr__(self) -> str:
         """The full reference to this Nummmer."""

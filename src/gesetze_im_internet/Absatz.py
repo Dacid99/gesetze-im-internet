@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from gesetze_im_internet.exceptions import ImproperTagError
 from gesetze_im_internet.GesetzNode import GesetzNode
-from gesetze_im_internet.utils import int2roman, register, wrap_node
+from gesetze_im_internet.utils import register, wrap_node
 
 
 if TYPE_CHECKING:
@@ -34,14 +34,15 @@ class Absatz(GesetzNode):
 
     TAG = "P"
     NR_REGEX = r"^\s*\(\s*(\d+)\s*\)"
-    STR_TEMPLATE = "%(norm)s %(nr)s"
+    STR_TEMPLATE = "%(norm)s Abs. %(nr)s"
 
     @override
     def __init__(self, node: etree._Element) -> None:
         if node.tag != self.TAG:
             raise ImproperTagError("")
         self._node = node
-        self._modify_node()
+        if self._node.find("satz") is None:
+            self._modify_node()
 
     def __int__(self) -> int:
         """The ordering number for this absatz. 1 if no number is given in the text."""
@@ -50,14 +51,14 @@ class Absatz(GesetzNode):
     @override
     def __str__(self) -> str:
         """The text for this absatz."""
-        return "".join([str(satz) for satz in self])
+        return self._node.text
 
     @override
     def __repr__(self) -> str:
         """The complete reference to this absatz."""
         return self.STR_TEMPLATE % {
             "norm": repr(self.norm),
-            "nr": (int2roman(int(self))),
+            "nr": int(self),
         }
 
     def __len__(self) -> int:
@@ -71,7 +72,10 @@ class Absatz(GesetzNode):
 
     def __getitem__(self, index: int) -> Satz:
         """Gets a Satz by index."""
-        return wrap_node(self._node.findall(".//satz")[index])
+        nodes = self._node.findall(".//satz")[index]
+        if isinstance(nodes, list):
+            return [wrap_node(node) for node in nodes]
+        return wrap_node(nodes)
 
     def __call__(self, index: int) -> Satz:
         """Gets a Satz by index."""
@@ -101,15 +105,16 @@ class Absatz(GesetzNode):
             if nummer_contents and nummer_contents[-1].text.strip().endswith("."):
                 nummer.tail = nummer.tail + ". " if nummer.tail else ". "
         absatz_text = (
-            etree.tostring(self._node).removeprefix(b"<P>").removesuffix(b"</P>")
+            etree.tostring(self._node, encoding="unicode")
+            .removeprefix("<P>")
+            .removesuffix("</P>")
         )
-        absatz_text = re.sub(rb"<DL.*</DL>", b"<nummern/>", absatz_text)
-        for satz_nr, satz in enumerate(absatz_text.split(b". ")):
-            satz_node = etree.SubElement(self._node, "satz", {"nr": str(satz_nr + 1)})
-            satz_parts = satz.split(b"<nummern/>")
+        print(absatz_text)
+        absatz_text = re.sub(r"<DL.*</DL>", "<nummern/>", absatz_text)
+        for satz_nr, satz in enumerate(absatz_text.split(". "), start=1):
+            satz_node = etree.SubElement(self._node, "satz", {"nr": str(satz_nr)})
+            satz_parts = satz.split("<nummern/>")
+            satz_node.text = satz_parts[0]
             if len(satz_parts) > 1:
-                satz_node.text = satz_parts[0]
                 satz_node.append(self._node.find(".//DL"))
                 satz_node.find("DL").tail = satz_parts[1]
-            else:
-                satz_node.text = satz_parts[0] + b"."

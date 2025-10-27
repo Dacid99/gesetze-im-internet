@@ -34,7 +34,6 @@ class Satz(GesetzNode):
 
     def __init__(self, node: etree._Element) -> None:
         super().__init__(node)
-        self._modify_node()
 
     def __int__(self) -> int:
         """The number of this Satz."""
@@ -42,10 +41,7 @@ class Satz(GesetzNode):
 
     def __iter__(self) -> Iterator[Nummer]:
         """Iterator over the Nummern in this Satz."""
-        for nummer_dt, nummer_dd in zip(
-            self._node.findall(".//DT"), self._node.findall(".//DD")
-        ):
-            nummer_dt.append(nummer_dd)
+        for nummer_dt in self._node.findall(".//DT"):
             yield wrap_node(nummer_dt)
 
     def __len__(self) -> int:
@@ -62,7 +58,10 @@ class Satz(GesetzNode):
 
     def __getitem__(self, index: int) -> Nummer:
         """Gets a Nummer by index."""
-        return wrap_node(self._node.findall(".//DT")[index])
+        nodes = self._node.findall(".//DT")[index]
+        if isinstance(nodes, list):
+            return [wrap_node(node) for node in nodes]
+        return wrap_node(nodes)
 
     def __call__(self, index: int) -> Nummer:
         """Gets a Nummer by index."""
@@ -80,9 +79,3 @@ class Satz(GesetzNode):
         while norm_candidate is not None and norm_candidate.tag != "P":
             norm_candidate = norm_candidate.getparent()
         return wrap_node(norm_candidate) if norm_candidate is not None else None
-
-    def _modify_node(self) -> None:
-        for nummer_dt, nummer_dd in zip(
-            self._node.findall(".//DT"), self._node.findall(".//DD")
-        ):
-            nummer_dt.append(nummer_dd)

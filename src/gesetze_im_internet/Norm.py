@@ -61,12 +61,15 @@ class Norm(GesetzNode):
 
     def __getitem__(self, absatz_nr: int) -> Absatz:
         """Gets an absatz by index."""
-        return wrap_node(self._node.findall(".//P")[absatz_nr])
+        nodes = self._node.findall(".//P")[absatz_nr]
+        if isinstance(nodes, list):
+            return [wrap_node(node) for node in nodes]
+        return wrap_node(nodes)
 
     @override
     def __str__(self) -> str:
         """The text content of this norm."""
-        return "\n".join([f"({int(absatz)}) {absatz}" for absatz in self])
+        return "\n".join([str(absatz) for absatz in self])
 
     @override
     def __repr__(self) -> str:
@@ -74,13 +77,17 @@ class Norm(GesetzNode):
         return (
             self.STR_GLIEDERUNG_TEMPLATE
             % {
-                "jurabk": self.jurabk,
-                "gliederungsbez": self.gliederungsbez,
-                "gliederungstitel": self.gliederungstitel,
+                "jurabk": self.jurabk or "",
+                "gliederungsbez": self.gliederungsbez or "",
+                "gliederungstitel": self.gliederungstitel or "",
             }
             if self.is_gliederung
             else self.STR_NORM_TEMPLATE
-            % {"jurabk": self.jurabk, "enbez": self.enbez, "titel": self.titel}
+            % {
+                "jurabk": self.jurabk or "",
+                "enbez": self.enbez or "",
+                "titel": self.titel or "",
+            }
         )
 
     def __int__(self) -> int:

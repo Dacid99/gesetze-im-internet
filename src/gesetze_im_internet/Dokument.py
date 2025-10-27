@@ -65,7 +65,10 @@ class Dokument(GesetzNode):
 
     def __getitem__(self, index: int) -> Norm:
         """Get a norm by index."""
-        return wrap_node(self._node.findall("norm")[index])
+        nodes = self._node.findall("norm")[index]
+        if isinstance(nodes, list):
+            return [wrap_node(node) for node in nodes]
+        return wrap_node(nodes)
 
     @override
     def __str__(self) -> str:
@@ -143,26 +146,38 @@ class Dokument(GesetzNode):
     @property
     def jurabk(self) -> str | None:
         """The common abbreviation of the document name ('Juristische Abkürzung')."""
-        return self._metadaten.findtext("jurabk") if self._metadaten else None
+        return (
+            self._metadaten.findtext("jurabk") if self._metadaten is not None else None
+        )
 
     @property
     def amtabk(self) -> str | None:
         """The official abbreviation of the document name ('Amtliche Abkürzung')."""
-        return self._metadaten.findtext("amtabk") if self._metadaten else None
+        return (
+            self._metadaten.findtext("amtabk") if self._metadaten is not None else None
+        )
 
     @property
     def kurzue(self) -> str | None:
         """The shortform of the full document name."""
-        return self._metadaten.findtext("kurzue") if self._metadaten else None
+        return (
+            self._metadaten.findtext("kurzue") if self._metadaten is not None else None
+        )
 
     @property
     def langue(self) -> str | None:
         """The long form of the full document name."""
-        return self._metadaten.findtext("langue") if self._metadaten else None
+        return (
+            self._metadaten.findtext("langue") if self._metadaten is not None else None
+        )
 
     @property
     def _ausfertigung(self) -> etree._Element | None:
-        return self._metadaten.find("ausfertigung-datum") if self._metadaten else None
+        return (
+            self._metadaten.find("ausfertigung-datum")
+            if self._metadaten is not None
+            else None
+        )
 
     @property
     def ausfertigung_datum(self) -> datetime | None:
