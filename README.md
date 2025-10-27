@@ -1,5 +1,12 @@
 # Gesetze-Im-Internet Python Package
 
+![PyPI - Downloads](https://img.shields.io/pypi/dm/gesetze-im-internet)
+![PyPI - Version](https://img.shields.io/pypi/v/gesetze-im-internet)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gesetze-im-internet)
+![PyPI - License](https://img.shields.io/pypi/l/gesetze-im-internet)
+![Coverage](https://gitlab.com/Dacid99/gesetze-im-internet/badges/master/coverage.svg?job=test_codebase)
+![Pipeline](https://gitlab.com/Dacid99/gesetze-im-internet/badges/master/pipeline.svg)
+
 ## A simple API to access data from gesetze-im-internet.de
 
 www.gesetze-im-internet.de offers an xml version of the laws for access by third parties.
