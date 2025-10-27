@@ -51,7 +51,7 @@ class Absatz(GesetzNode):
     @override
     def __str__(self) -> str:
         """The text for this absatz."""
-        return self._node.text or ""
+        return "".join([str(satz) for satz in self])
 
     @override
     def __repr__(self) -> str:
@@ -116,12 +116,12 @@ class Absatz(GesetzNode):
             .removeprefix("<P>")
             .removesuffix("</P>")
         )
-        print(absatz_text)
         absatz_text = re.sub(r"<DL.*</DL>", "<nummern/>", absatz_text)
         for satz_nr, satz in enumerate(absatz_text.split(". "), start=1):
-            satz_node = etree.SubElement(self._node, "satz", {"nr": str(satz_nr)})
-            satz_parts = satz.split("<nummern/>")
-            satz_node.text = satz_parts[0]
-            if len(satz_parts) > 1:
-                satz_node.append(self._node.find(".//DL"))
-                satz_node.find("DL").tail = satz_parts[1]
+            if satz:
+                satz_node = etree.SubElement(self._node, "satz", {"nr": str(satz_nr)})
+                satz_parts = satz.split("<nummern/>")
+                satz_node.text = satz_parts[0]
+                if len(satz_parts) > 1:
+                    satz_node.append(self._node.find(".//DL"))
+                    satz_node.find("DL").tail = satz_parts[1]

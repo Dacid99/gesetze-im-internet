@@ -195,8 +195,13 @@ class Norm(GesetzNode):
     @property
     def nr(self) -> float | None:
         """The paragraph number of this law."""
+        if self.is_gliederung:
+            return float(self.gliederungskennzahl or 0)
         if self.enbez:
-            return alphanumeric2float(self.enbez.strip(" §"))
+            try:
+                return alphanumeric2float(self.enbez.strip(" §"))
+            except ValueError:
+                return None
         return None
 
     @cached_property

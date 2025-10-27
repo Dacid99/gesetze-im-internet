@@ -37,7 +37,9 @@ class Nummer(GesetzNode):
     def __str__(self) -> str:
         """The text content of this Nummmer."""
         return (
-            self._node.getnext().findtext(".//LA") if self._node.getnext() else ""
+            self._node.getnext().findtext(".//LA")
+            if self._node.getnext() is not None
+            else ""
         ) or ""
 
     @override

@@ -114,16 +114,16 @@ Iterating the Dokument instance yields Norm instances, holding the data of indiv
 You can access that data in a similar way.
 
 ```python
->>> abschnitt = bgb[1]
+>>> abschnitt = bgb[2]
 
 >>> abschnitt
-BGB
+BGB Buch 1 Allgemeiner Teil
 
 >>> abschnitt.is_gliederung
 True
 
 >>> abschnitt.gliederungsbez
-
+Buch 1
 
 >>> paragraph1 = bgb[5]
 # The Dokument class also holds norms encoding gliederungsüberschriften.

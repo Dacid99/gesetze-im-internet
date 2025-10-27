@@ -53,9 +53,13 @@ class Satz(GesetzNode):
     @override
     def __str__(self) -> str:
         """The text content of this Satz."""
-        return (self._node.text or "") + "".join(
-            [str(nummer) + (nummer._node.tail or "") for nummer in self]
+        string = (self._node.text or "") + "".join(
+            [
+                str(int(nummer)) + ". " + str(nummer) + (nummer._node.tail or " ")
+                for nummer in self
+            ]
         )
+        return string + ". " if not string.endswith((". ", ".")) else string
 
     @override
     def __repr__(self) -> str:
