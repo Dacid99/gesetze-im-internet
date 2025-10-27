@@ -12,15 +12,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from typing_extensions import override
+
 from gesetze_im_internet.GesetzNode import GesetzNode
-from gesetze_im_internet.utils import register, wrap_node
+from gesetze_im_internet.utils import _register, _wrap_node
 
 
 if TYPE_CHECKING:
     from .Satz import Satz
 
 
-@register
+@_register
 class Nummer(GesetzNode):
     """Wrapper class for the DT nummer gii-xml element."""
 
@@ -31,10 +33,14 @@ class Nummer(GesetzNode):
         """The number of this Nummmer."""
         return self.nr or 1
 
+    @override
     def __str__(self) -> str:
         """The text content of this Nummmer."""
-        return self._node.getnext().find(".//LA") or ""
+        return (
+            self._node.getnext().findtext(".//LA") if self._node.getnext() else ""
+        ) or ""
 
+    @override
     def __repr__(self) -> str:
         """The full reference to this Nummmer."""
         return self.STR_TEMPLATE % {"satz": repr(self.satz), "nr": int(self)}
@@ -52,6 +58,6 @@ class Nummer(GesetzNode):
     def satz(self) -> Satz:
         """The Satz this Nummmer is a part of."""
         satz_candidate = self._node.getparent()
-        while satz_candidate.tag != "satz":
+        while satz_candidate is not None and satz_candidate.tag != "satz":
             satz_candidate = satz_candidate.getparent()
-        return wrap_node(satz_candidate)
+        return _wrap_node(satz_candidate)

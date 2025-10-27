@@ -12,8 +12,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from typing_extensions import override
+
 from gesetze_im_internet.GesetzNode import GesetzNode
-from gesetze_im_internet.utils import register, wrap_node
+from gesetze_im_internet.utils import _register, _wrap_node
 
 
 if TYPE_CHECKING:
@@ -25,7 +27,7 @@ if TYPE_CHECKING:
     from .Nummer import Nummer
 
 
-@register
+@_register
 class Satz(GesetzNode):
     """Wrapper class for the satz gii-xml element."""
 
@@ -42,28 +44,32 @@ class Satz(GesetzNode):
     def __iter__(self) -> Iterator[Nummer]:
         """Iterator over the Nummern in this Satz."""
         for nummer_dt in self._node.findall(".//DT"):
-            yield wrap_node(nummer_dt)
+            yield _wrap_node(nummer_dt)
 
     def __len__(self) -> int:
         """The number of Nummern in this Satz."""
         return len(self._node.findall(".//DT"))
 
+    @override
     def __str__(self) -> str:
         """The text content of this Satz."""
-        return self._node.text + "".join([str(nummer) for nummer in self])
+        return (self._node.text or "") + "".join(
+            [str(nummer) + (nummer._node.tail or "") for nummer in self]
+        )
 
+    @override
     def __repr__(self) -> str:
         """The full reference to this Satz."""
         return self.STR_TEMPLATE % {"absatz": repr(self.absatz), "nr": int(self)}
 
-    def __getitem__(self, index: int) -> Nummer:
+    def __getitem__(self, index: int | slice) -> Nummer | list[Nummer]:
         """Gets a Nummer by index."""
         nodes = self._node.findall(".//DT")[index]
         if isinstance(nodes, list):
-            return [wrap_node(node) for node in nodes]
-        return wrap_node(nodes)
+            return [_wrap_node(node) for node in nodes]
+        return _wrap_node(nodes)
 
-    def __call__(self, nummer_nr: int) -> Nummer:
+    def __call__(self, nummer_nr: int) -> Nummer | None:
         """Gets a Nummer by its number."""
         for nummer in self:
             if int(nummer) == nummer_nr:
@@ -81,4 +87,4 @@ class Satz(GesetzNode):
         norm_candidate = self._node.getparent()
         while norm_candidate is not None and norm_candidate.tag != "P":
             norm_candidate = norm_candidate.getparent()
-        return wrap_node(norm_candidate) if norm_candidate is not None else None
+        return _wrap_node(norm_candidate) if norm_candidate is not None else None

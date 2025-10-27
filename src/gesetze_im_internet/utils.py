@@ -18,12 +18,12 @@ from gesetze_im_internet.GesetzNode import GesetzNode
 NODE_WRAPPER_CLASSES: dict[str, GesetzNode] = {}
 
 
-def register(cls: GesetzNode):
+def _register(cls: type[GesetzNode]) -> type[GesetzNode]:
     NODE_WRAPPER_CLASSES[cls.TAG] = cls
     return cls
 
 
-def wrap_node(node: etree._Element):
+def _wrap_node(node: etree._Element) -> GesetzNode:
     return NODE_WRAPPER_CLASSES[node.tag](node=node)
 
 

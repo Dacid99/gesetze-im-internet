@@ -114,11 +114,25 @@ Iterating the Dokument instance yields Norm instances, holding the data of indiv
 You can access that data in a similar way.
 
 ```python
+>>> abschnitt = bgb[1]
+
+>>> abschnitt
+BGB
+
+>>> abschnitt.is_gliederung
+True
+
+>>> abschnitt.gliederungsbez
+
+
 >>> paragraph1 = bgb[5]
 # The Dokument class also holds norms encoding gliederungsüberschriften.
 # Therefore the indexes and paragraph numbers do not necessarily align.
 
 >>> paragraph1 = bgb(1)
+
+>>> paragraph1.is_gliederung
+False
 
 >>> paragraph1.nr
 1.0

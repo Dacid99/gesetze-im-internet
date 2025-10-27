@@ -23,7 +23,7 @@ from typing_extensions import override
 from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOCOL
 from gesetze_im_internet.exceptions import BadDataError, ValidationError
 from gesetze_im_internet.GesetzNode import GesetzNode
-from gesetze_im_internet.utils import register, replace_umlauts, wrap_node
+from gesetze_im_internet.utils import _register, replace_umlauts, _wrap_node
 
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from .Norm import Norm
 
 
-@register
+@_register
 class Dokument(GesetzNode):
     """Wrapper class for the dokumente gii-xml element."""
 
@@ -57,21 +57,21 @@ class Dokument(GesetzNode):
             iterator
         )  # needed to skip the first norm, which is purely metadata for the dokument
         for norm in iterator:
-            yield wrap_node(norm)
+            yield _wrap_node(norm)
 
-    def __call__(self, norm_nr: int | float) -> Norm:
+    def __call__(self, norm_nr: int | float) -> Norm | None:
         """Get a norm by its number."""
         for norm in self:
             if float(norm) == norm_nr:
                 return norm
         return None
 
-    def __getitem__(self, index: int) -> Norm:
+    def __getitem__(self, index: int | slice) -> Norm | list[Norm]:
         """Get a norm by index."""
         nodes = self._node.findall("norm")[index]
         if isinstance(nodes, list):
-            return [wrap_node(node) for node in nodes]
-        return wrap_node(nodes)
+            return [_wrap_node(node) for node in nodes]
+        return _wrap_node(nodes)
 
     @override
     def __str__(self) -> str:

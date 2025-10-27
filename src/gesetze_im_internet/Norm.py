@@ -20,9 +20,9 @@ from gesetze_im_internet.constants import BUILDDATE_FORMAT, TIMEZONE, WEB_PROTOC
 from gesetze_im_internet.GesetzNode import GesetzNode
 from gesetze_im_internet.utils import (
     alphanumeric2float,
-    register,
+    _register,
     replace_umlauts,
-    wrap_node,
+    _wrap_node,
 )
 
 
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from .Dokument import Dokument
 
 
-@register
+@_register
 class Norm(GesetzNode):
     """Wrapper class for the norm gii-xml element."""
 
@@ -53,7 +53,7 @@ class Norm(GesetzNode):
     def __iter__(self) -> Iterable[Absatz]:
         """Iterator over the absätze in the norm."""
         for absatz_node in self._node.iterfind(".//P"):
-            yield wrap_node(absatz_node)
+            yield _wrap_node(absatz_node)
 
     def __call__(self, absatz_nr: int) -> Absatz | None:
         """Gets an absatz by its number."""
@@ -62,12 +62,12 @@ class Norm(GesetzNode):
                 return absatz
         return None
 
-    def __getitem__(self, absatz_nr: int) -> Absatz:
+    def __getitem__(self, index: int | slice) -> Absatz | list[Absatz]:
         """Gets an absatz by index."""
-        nodes = self._node.findall(".//P")[absatz_nr]
+        nodes = self._node.findall(".//P")[index]
         if isinstance(nodes, list):
-            return [wrap_node(node) for node in nodes]
-        return wrap_node(nodes)
+            return [_wrap_node(node) for node in nodes]
+        return _wrap_node(nodes)
 
     @override
     def __str__(self) -> str:
@@ -212,7 +212,7 @@ class Norm(GesetzNode):
         """The Kennzahl of this Gliederungseinheit."""
         return (
             self._gliederungseinheit.findtext("gliederungskennzahl")
-            if self.is_gliederung is not None
+            if self.is_gliederung
             else None
         )
 
@@ -221,7 +221,7 @@ class Norm(GesetzNode):
         """The Bezeichnung of this Gliederungseinheit."""
         return (
             self._gliederungseinheit.findtext("gliederungsbez")
-            if self.is_gliederung is not None
+            if self.is_gliederung
             else None
         )
 
@@ -230,7 +230,7 @@ class Norm(GesetzNode):
         """The Titel of this Gliederungseinheit."""
         return (
             self._gliederungseinheit.findtext("gliederungstitel")
-            if self.is_gliederung is not None
+            if self.is_gliederung
             else None
         )
 
@@ -240,4 +240,6 @@ class Norm(GesetzNode):
         dokument_candidate = self._node
         while dokument_candidate is not None and dokument_candidate.tag != "dokumente":
             dokument_candidate = dokument_candidate.getparent()
-        return wrap_node(dokument_candidate) if dokument_candidate is not None else None
+        return (
+            _wrap_node(dokument_candidate) if dokument_candidate is not None else None
+        )

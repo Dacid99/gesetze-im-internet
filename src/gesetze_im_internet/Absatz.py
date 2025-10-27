@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from gesetze_im_internet.exceptions import ImproperTagError
 from gesetze_im_internet.GesetzNode import GesetzNode
-from gesetze_im_internet.utils import register, wrap_node
+from gesetze_im_internet.utils import _register, _wrap_node
 
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from .Satz import Satz
 
 
-@register
+@_register
 class Absatz(GesetzNode):
     """Wrapper class for the P gii-xml element."""
 
@@ -51,7 +51,7 @@ class Absatz(GesetzNode):
     @override
     def __str__(self) -> str:
         """The text for this absatz."""
-        return self._node.text
+        return self._node.text or ""
 
     @override
     def __repr__(self) -> str:
@@ -68,16 +68,16 @@ class Absatz(GesetzNode):
     def __iter__(self) -> Iterable[str]:
         """Iterator over all sentences in the absatz."""
         for satz in self._node.iterfind(".//satz"):
-            yield wrap_node(satz)
+            yield _wrap_node(satz)
 
-    def __getitem__(self, index: int) -> Satz:
+    def __getitem__(self, index: int | slice) -> Satz | list[Satz]:
         """Gets a Satz by index."""
         nodes = self._node.findall(".//satz")[index]
         if isinstance(nodes, list):
-            return [wrap_node(node) for node in nodes]
-        return wrap_node(nodes)
+            return [_wrap_node(node) for node in nodes]
+        return _wrap_node(nodes)
 
-    def __call__(self, satz_nr: int) -> Satz:
+    def __call__(self, satz_nr: int) -> Satz | None:
         """Gets a Satz by index."""
         for satz in self:
             if int(satz) == satz_nr:
@@ -100,12 +100,16 @@ class Absatz(GesetzNode):
         norm_candidate = self._node.getparent()
         while norm_candidate is not None and norm_candidate.tag != "norm":
             norm_candidate = norm_candidate.getparent()
-        return wrap_node(norm_candidate) if norm_candidate is not None else None
+        return _wrap_node(norm_candidate) if norm_candidate is not None else None
 
-    def _modify_node(self):
+    def _modify_node(self) -> None:
         for nummer in self._node.findall(".//DL"):
             nummer_contents = nummer.findall(".//LA")
-            if nummer_contents and nummer_contents[-1].text.strip().endswith("."):
+            if (
+                nummer_contents
+                and nummer_contents[-1].text
+                and nummer_contents[-1].text.strip().endswith(".")
+            ):
                 nummer.tail = nummer.tail + ". " if nummer.tail else ". "
         absatz_text = (
             etree.tostring(self._node, encoding="unicode")

@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 from lxml import etree
 from requests import codes, get
@@ -21,6 +21,10 @@ from gesetze_im_internet.exceptions import DownloadError
 from .Dokument import Dokument
 
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+
 class TOC:
     """The wrapper for the xml toc data."""
 
@@ -28,7 +32,7 @@ class TOC:
 
     @override
     def __init__(self, toc_url: str = URL) -> None:
-        self._dict = {}
+        self._dict: dict[str, str | None] = {}
         self.parse(self.get(toc_url))
 
     def __iter__(self) -> Iterator[str]:
@@ -56,7 +60,7 @@ class TOC:
             dokument.validate()
         return dokument
 
-    def __getitem__(self, index: int) -> Dokument | list[Dokument]:
+    def __getitem__(self, index: int | slice) -> Dokument | list[Dokument]:
         """Get a document by title."""
         return self(list(self._dict)[index])
 
@@ -71,6 +75,6 @@ class TOC:
         """Parse the toc data into this instance."""
         items = etree.fromstring(toc_data)
         for item in items:
-            title = item.find("title")
+            title = item.findtext("title")
             if title is not None:
-                self._dict[title.text] = item.findtext("link")
+                self._dict[title] = item.findtext("link")
