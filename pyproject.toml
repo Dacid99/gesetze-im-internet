@@ -1,6 +1,6 @@
 [project]
 name = "gesetze-im-internet"
-version = "0.0.1"
+version = "0.0.2"
 description = "Simple API for gesetze-im-internet.de's xml readout"
 keywords = [
     "gesetze",
