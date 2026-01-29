@@ -29,10 +29,6 @@ pip install poetry
 poetry install
 ```
 
-### License
-
-This software is licensed under the European Union Public License Version 1.1 . This a copyleft open-source license explicitly compatible with the GPL licenses, designed for legal security throughout the European Union member states.
-
 ## Basic Usage
 
 ### Table of Contents
@@ -202,4 +198,18 @@ Everyone is invited to contribute to this project!
 
 Just contact me or send me a merge request on [gitlab](https://gitlab.com/Dacid99/gesetze-im-internet).
 
-Please make sure to read [the contributing guideline](CONTRIBUTING.md) and [the development guide](DEVELOPMENT.md) to get a headstart
+Please make sure to read [the contributing guideline](CONTRIBUTING.md) and [the development guide](DEVELOPMENT.md) to get a headstart.
+
+
+## License
+
+This software is licensed under the European Union Public License Version 1.1 . This a copyleft open-source license explicitly compatible with the GPL licenses, designed for legal security throughout the European Union member states.
+
+
+## Disclaimer
+
+The authors of this software are not associated with the Bundesministerium für Justiz und Verbraucherschutz, which offers the gesetze-im-internet service. They have created the integration as open source in their spare time on the basis of publicly accessible information.
+
+The output of this software may be flawed and can in no way be considered legal advice.
+
+The use of the integration is at the user's own risk and responsibility. The developers are not liable for any damages arising from the use of the integration.
