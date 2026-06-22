@@ -1,21 +1,50 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        "config:recommended"
-    ],
-    "prHourlyLimit": 5,
-    "packageRules": [
-        {
-            "matchPackagePatterns": [
-                "*"
-            ],
-            "matchUpdateTypes": [
-                "minor",
-                "patch"
-            ],
-            "groupName": "all non-major dependencies",
-            "groupSlug": "all-minor-patch",
-            "automerge": true
-        }
-    ]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":automergeDisabled",
+    ":assignee(@Dacid99)",
+    ":configMigration",
+    ":disableDigestUpdates",
+    ":enablePreCommit",
+    ":pinDigestsDisabled",
+    ":prConcurrentLimitNone",
+    ":preserveSemverRanges",
+    ":prHourlyLimitNone",
+    ":rebaseStalePrs",
+    ":semanticPrefixChore",
+    "customManagers:gitlabPipelineVersions",
+    "customManagers:dockerfileVersions",
+    "customManagers:makefileVersions",
+    "mergeConfidence:all-badges"
+  ],
+  "ignorePresets": [
+    ":maintainLockFilesWeekly",
+    ":pinDevDependencies",
+    ":semanticPrefixFixDepsChoreOthers",
+    "docker:pinDigests"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["at any time"]
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["poetry"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "all poetry minor releases",
+      "groupSlug": "poetry minor"
+    },
+    {
+      "matchManagers": ["poetry"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "all poetry patch releases",
+      "groupSlug": "poetry patch"
+    },
+    {
+      "matchManagers": ["gitlabci"],
+      "groupName": "all gitlab-ci releases",
+      "groupSlug": "gitlab-ci"
+    }
+  ]
 }
