@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.0.4
+
+- Release constraints on dependencies
+
 ## Version 0.0.3
 
 - Updated dependencies
